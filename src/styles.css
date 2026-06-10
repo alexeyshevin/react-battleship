@@ -1,0 +1,44 @@
+.game {
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.boards {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, 32px);
+  grid-template-rows: repeat(10, 32px);
+  gap: 2px;
+}
+
+.cell {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #333;
+  background: #bde0fe;
+  cursor: pointer;
+}
+
+.cell.ship {
+  background: #555;
+}
+
+.cell.hit {
+  background: #e63946;
+}
+
+.cell.miss {
+  background: #f1faee;
+}
+
+.reset-button {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 16px;
+}
