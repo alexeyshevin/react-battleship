@@ -1,71 +1,19 @@
 import { useState } from 'react';
 import './App.css';
+import { createBoardWithShips } from './shared/helpers/createBoardWithShips';
 import './styles.css';
 
-const SIZE = 10;
-const SHIPS = [5, 4, 3, 3, 2];
-
-function createEmptyBoard() {
-  return Array.from({ length: SIZE }, () =>
-    Array.from({ length: SIZE }, () => ({
-      ship: false,
-      hit: false,
-    }))
-  );
-}
-
-function canPlaceShip(board, row, col, length, horizontal) {
-  for (let i = 0; i < length; i++) {
-    const r = horizontal ? row : row + i;
-    const c = horizontal ? col + i : col;
-
-    if (r >= SIZE || c >= SIZE || board[r][c].ship) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function placeShip(board, length) {
-  let placed = false;
-
-  while (!placed) {
-    const horizontal = Math.random() > 0.5;
-    const row = Math.floor(Math.random() * SIZE);
-    const col = Math.floor(Math.random() * SIZE);
-
-    if (canPlaceShip(board, row, col, length, horizontal)) {
-      for (let i = 0; i < length; i++) {
-        const r = horizontal ? row : row + i;
-        const c = horizontal ? col + i : col;
-        board[r][c].ship = true;
-      }
-
-      placed = true;
-    }
-  }
-}
-
-function createBoardWithShips() {
-  const board = createEmptyBoard();
-
-  SHIPS.forEach((shipLength) => {
-    placeShip(board, shipLength);
-  });
-
-  return board;
-}
-
-function App {
+const App = () => {
   const [playerBoard, setPlayerBoard] = useState(createBoardWithShips);
   const [enemyBoard, setEnemyBoard] = useState(createBoardWithShips);
   const [message, setMessage] = useState("Стреляй по полю противника!");
 
-  function handleEnemyCellClick(row, col) {
+  function handleEnemyCellClick(row: number, col: number) {
     const cell = enemyBoard[row][col];
 
-    if (cell.hit) return;
+    if (cell.hit) {
+      return;
+    }
 
     const updatedBoard = enemyBoard.map((boardRow) =>
       boardRow.map((cell) => ({ ...cell }))
@@ -88,11 +36,11 @@ function App {
     setMessage("Новая игра. Стреляй по полю противника!");
   }
 
-  function renderBoard(board, isEnemy) {
+  function renderBoard(board: any, isEnemy: boolean) {
     return (
       <div className="board">
-        {board.map((row, rowIndex) =>
-          row.map((cell, colIndex) => {
+        {board.map((row: any, rowIndex: number) =>
+          row.map((cell: any, colIndex: number) => {
             let className = "cell";
 
             if (!isEnemy && cell.ship) {
