@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { BoardView } from '../../shared/types';
 import { BoardCell } from '../BoardCell/BoardCell';
 import './Board.css';
@@ -13,6 +14,7 @@ type Props = {
 
 export const Board = (props: Props) => {
   const titleId = useId();
+  const { t } = useTranslation();
 
   const renderBoardCells = () => {
     return (
@@ -22,7 +24,7 @@ export const Board = (props: Props) => {
             key={`${rowIndex}-${colIndex}`}
             cell={cell}
             concealShip={props.concealShips}
-            label={`Строка ${rowIndex + 1}, столбец ${colIndex + 1}`}
+            label={t('cell.coordinates', { row: rowIndex + 1, col: colIndex + 1 })}
             onClick={props.onCellClick ? () => props.onCellClick?.(rowIndex, colIndex) : undefined}
           />
         )),
