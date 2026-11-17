@@ -1,6 +1,6 @@
-import { SHIPS } from "../consts";
-import { createEmptyBoard } from "./createEmptyBoard";
-import { placeShip } from "./placeShip";
+import { SHIPS } from '../consts';
+import { createEmptyBoard } from './createEmptyBoard';
+import { placeShip } from './placeShip';
 
 export const createBoardWithShips = () => {
   const board = createEmptyBoard();
@@ -10,4 +10,4 @@ export const createBoardWithShips = () => {
   });
 
   return board;
-}
+};

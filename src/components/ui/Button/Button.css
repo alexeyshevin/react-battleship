@@ -1,0 +1,14 @@
+.button {
+  padding: 10px 16px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.button:disabled {
+  cursor: default;
+}
+
+.button:focus-visible {
+  outline: 2px solid #2457a6;
+  outline-offset: 3px;
+}

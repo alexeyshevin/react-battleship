@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import './App.css';
+import { Board } from './components/Board/Board';
+import { GameStatus } from './components/GameStatus/GameStatus';
+import { Button } from './components/ui/Button/Button';
 import { createBoardWithShips } from './shared/helpers/createBoardWithShips';
-import './styles.css';
+import './App.css';
 
 const App = () => {
   const [playerBoard, setPlayerBoard] = useState(createBoardWithShips);
   const [enemyBoard, setEnemyBoard] = useState(createBoardWithShips);
-  const [message, setMessage] = useState("Стреляй по полю противника!");
+  const [message, setMessage] = useState('Стреляй по полю противника!');
 
   function handleEnemyCellClick(row: number, col: number) {
     const cell = enemyBoard[row][col];
@@ -16,83 +18,38 @@ const App = () => {
     }
 
     const updatedBoard = enemyBoard.map((boardRow) =>
-      boardRow.map((cell) => ({ ...cell }))
+      boardRow.map((cell) => ({ ...cell })),
     );
 
     updatedBoard[row][col].hit = true;
-
-    if (updatedBoard[row][col].ship) {
-      setMessage("Попадание!");
-    } else {
-      setMessage("Мимо!");
-    }
-
+    setMessage(cell.ship ? 'Попадание!' : 'Мимо!');
     setEnemyBoard(updatedBoard);
   }
 
   function resetGame() {
     setPlayerBoard(createBoardWithShips());
     setEnemyBoard(createBoardWithShips());
-    setMessage("Новая игра. Стреляй по полю противника!");
-  }
-
-  function renderBoard(board: any, isEnemy: boolean) {
-    return (
-      <div className="board">
-        {board.map((row: any, rowIndex: number) =>
-          row.map((cell: any, colIndex: number) => {
-            let className = "cell";
-
-            if (!isEnemy && cell.ship) {
-              className += " ship";
-            }
-
-            if (cell.hit && cell.ship) {
-              className += " hit";
-            }
-
-            if (cell.hit && !cell.ship) {
-              className += " miss";
-            }
-
-            return (
-              <button
-                key={`${rowIndex}-${colIndex}`}
-                className={className}
-                onClick={() =>
-                  isEnemy && handleEnemyCellClick(rowIndex, colIndex)
-                }
-              />
-            );
-          })
-        )}
-      </div>
-    );
+    setMessage('Новая игра. Стреляй по полю противника!');
   }
 
   return (
-    <div className="game">
+    <main className="game">
       <h1>Морской бой</h1>
-
-      <p>{message}</p>
-
-      <button className="reset-button" onClick={resetGame}>
-        Сбросить игру
-      </button>
-
-      <div className="boards">
-        <div>
-          <h2>Моё поле</h2>
-          {renderBoard(playerBoard, false)}
-        </div>
-
-        <div>
-          <h2>Поле противника</h2>
-          {renderBoard(enemyBoard, true)}
-        </div>
+      <GameStatus message={message} />
+      <div className="game-actions">
+        <Button onClick={resetGame}>Сбросить игру</Button>
       </div>
-    </div>
+      <div className="boards">
+        <Board title="Моё поле" board={playerBoard} />
+        <Board
+          title="Поле противника"
+          board={enemyBoard}
+          concealShips
+          onCellClick={handleEnemyCellClick}
+        />
+      </div>
+    </main>
   );
-}
+};
 
 export default App;

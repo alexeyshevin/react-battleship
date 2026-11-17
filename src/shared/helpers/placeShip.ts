@@ -1,7 +1,8 @@
-import { SIZE } from "../consts";
-import { canPlaceShip } from "./canPlaceShip";
+import type { Board } from '../types';
+import { SIZE } from '../consts';
+import { canPlaceShip } from './canPlaceShip';
 
-export const placeShip = (board: any, length: number) => {
+export const placeShip = (board: Board, length: number) => {
   let placed = false;
 
   while (!placed) {
@@ -19,4 +20,4 @@ export const placeShip = (board: any, length: number) => {
       placed = true;
     }
   }
-}
+};

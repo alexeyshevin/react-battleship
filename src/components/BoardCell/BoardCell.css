@@ -1,0 +1,22 @@
+.cell {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid #333;
+  background: #bde0fe;
+  cursor: pointer;
+}
+
+.cell:disabled {
+  cursor: default;
+}
+
+.cell:focus-visible {
+  outline: 3px solid #2457a6;
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+.cell.ship { background: #555; }
+.cell.hit { background: #e63946; }
+.cell.miss { background: #f1faee; }

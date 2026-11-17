@@ -1,0 +1,11 @@
+.board-panel {
+  min-width: 0;
+  width: 338px;
+  max-width: 100%;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
+  gap: 2px;
+}

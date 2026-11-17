@@ -1,11 +1,12 @@
-import { SIZE } from "../consts";
+import type { Board } from '../types';
+import { SIZE } from '../consts';
 
 export const canPlaceShip = (
-  board: any,
+  board: Board,
   row: number,
   col: number,
   length: number,
-  horizontal: boolean
+  horizontal: boolean,
 ) => {
   for (let i = 0; i < length; i++) {
     const r = horizontal ? row : row + i;
@@ -17,4 +18,4 @@ export const canPlaceShip = (
   }
 
   return true;
-}
+};
