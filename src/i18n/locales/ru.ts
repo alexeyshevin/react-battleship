@@ -15,6 +15,15 @@ export const ru = {
       select: 'Выбрать игру с другом',
     },
   },
+  draw: {
+    title: 'Кто ходит первым?',
+    choose: 'Выбери число от 1 до 10',
+    choices: 'Твоё число: {{playerNumber}}. Число компьютера: {{botNumber}}.',
+    start: 'Запустить жеребьёвку',
+    spinning: 'Жеребьёвка… 5 секунд',
+    result: 'Выпало число {{number}}.',
+    first: { player: 'Первым ходишь ты.', bot: 'Первым ходит компьютер.' },
+  },
   game: {
     reset: 'Сбросить игру',
     journalBoard: 'Боевой журнал',

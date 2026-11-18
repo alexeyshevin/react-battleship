@@ -1,0 +1,48 @@
+.turn-draw {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-block: 24px;
+}
+
+.turn-draw h3 { margin: 0; }
+
+.draw-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.draw-numbers [aria-pressed='true'] {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.draw-roulette {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 32px;
+}
+
+.draw-roulette span {
+  grid-area: 1 / 1;
+  animation: draw-flash 240ms steps(1) infinite;
+}
+
+.draw-roulette .draw-roulette-bot { animation-delay: -120ms; }
+
+@keyframes draw-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-roulette { display: flex; justify-content: space-evenly; }
+  .draw-roulette span { animation: none; }
+}

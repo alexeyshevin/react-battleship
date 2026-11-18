@@ -21,6 +21,15 @@ export const en = {
       select: 'Choose friend',
     },
   },
+  draw: {
+    title: 'Who goes first?',
+    choose: 'Choose a number from 1 to 10',
+    choices: 'Your number: {{playerNumber}}. Computer’s number: {{botNumber}}.',
+    start: 'Start the draw',
+    spinning: 'Drawing… 5 seconds',
+    result: 'The number drawn is {{number}}.',
+    first: { player: 'You go first.', bot: 'The computer goes first.' },
+  },
   game: {
     reset: 'Reset game',
     journalBoard: 'Battle log',

@@ -9,3 +9,15 @@ export type Board = Cell[][];
 export type BoardView = ReadonlyArray<ReadonlyArray<Readonly<Cell>>>;
 
 export type GameMode = 'bot' | 'journal';
+
+export type Player = 'player' | 'bot';
+
+export type GameTypeSelection = {
+  playerNumber: number;
+  botNumber: number;
+};
+
+export type DrawState =
+  | { phase: 'choosing'; selection: GameTypeSelection | null }
+  | { phase: 'spinning'; selection: GameTypeSelection; winner: Player }
+  | { phase: 'complete'; selection: GameTypeSelection; winner: Player };
