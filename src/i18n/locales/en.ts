@@ -7,8 +7,23 @@ type TranslationShape<T> = {
 export const en = {
   app: { title: 'Battleship' },
   language: { label: 'Language' },
+  modes: {
+    choose: 'Choose a game mode',
+    back: 'Back to mode selection',
+    bot: {
+      title: 'Play against the computer',
+      description: 'A game of Battleship against the computer.',
+      select: 'Choose computer',
+    },
+    journal: {
+      title: 'Play with a friend',
+      description: 'Each player keeps their own board and battle log on their own computer.',
+      select: 'Choose friend',
+    },
+  },
   game: {
     reset: 'Reset game',
+    journalBoard: 'Battle log',
     playerBoard: 'My board',
     enemyBoard: 'Opponent’s board',
     status: {

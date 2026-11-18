@@ -7,3 +7,5 @@ export type Board = Cell[][];
 
 // Представление поля для компонентов, которым не нужно изменять игровую модель.
 export type BoardView = ReadonlyArray<ReadonlyArray<Readonly<Cell>>>;
+
+export type GameMode = 'bot' | 'journal';

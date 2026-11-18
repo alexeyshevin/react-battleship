@@ -1,0 +1,21 @@
+.mode-selection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 300px;
+  max-width: 100%;
+  padding: 24px;
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+}
+
+.mode-card h3 { margin: 0; }
+.mode-card .button { margin-top: auto; }

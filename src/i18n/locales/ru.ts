@@ -1,8 +1,23 @@
 export const ru = {
   app: { title: 'Морской бой' },
   language: { label: 'Язык' },
+  modes: {
+    choose: 'Выбери режим игры',
+    back: 'К выбору режима',
+    bot: {
+      title: 'Игра с компьютером',
+      description: 'Морской бой против компьютера.',
+      select: 'Выбрать компьютер',
+    },
+    journal: {
+      title: 'Игра с другом',
+      description: 'Каждый ведёт своё поле и боевой журнал на своём компьютере.',
+      select: 'Выбрать игру с другом',
+    },
+  },
   game: {
     reset: 'Сбросить игру',
+    journalBoard: 'Боевой журнал',
     playerBoard: 'Моё поле',
     enemyBoard: 'Поле противника',
     status: {
