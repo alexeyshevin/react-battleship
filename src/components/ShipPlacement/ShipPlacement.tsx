@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SHIP_TYPES, SIZE } from '../../shared/consts';
-import type { Board as BoardModel, PlacedShip, ShipControlAction, ShipType } from '../../shared/types';
 import { canPositionShip, createBoardFromShips, findShipPosition, getShipCells, isFleetComplete, rotateShip } from '../../shared/helpers/shipPlacement';
-import { ShipPlacementButton } from '../ShipPlacementButton/ShipPlacementButton';
-import { ShipControlButton } from '../ShipControlButton/ShipControlButton';
+import type { Board as BoardModel, PlacedShip, ShipControlAction, ShipType } from '../../shared/types';
 import { Board } from '../Board/Board';
+import { ShipControlButton } from '../ShipControlButton/ShipControlButton';
+import { ShipPlacementButton } from '../ShipPlacementButton/ShipPlacementButton';
 import { Button } from '../ui/Button/Button';
 import './ShipPlacement.css';
 
@@ -48,7 +48,9 @@ export const ShipPlacement = (props: Props) => {
     if (selected) return;
     const ship = ships.find((item) => getShipCells(item)
       .some((cell) => cell.row === row && cell.col === col));
-    if (ship) setSelectedId(ship.id);
+    if (ship) {
+      setSelectedId(ship.id);
+    }
   };
 
   const confirmShip = () => {
@@ -94,10 +96,18 @@ export const ShipPlacement = (props: Props) => {
                 top: `clamp(52px, ${(selected.row + 0.5) / SIZE * 100}%, calc(100% - 52px))` }}>
               {actions.map((action) => {
                 const isRotation = action === 'clockwise' || action === 'counterclockwise';
-                if (isRotation && Number(SHIP_TYPES[selected.type].length) === 1) return null;
+                if (isRotation && Number(SHIP_TYPES[selected.type].length) === 1) {
+                  return null;
+                }
+
                 const candidate = getCandidate(selected, action);
-                return <ShipControlButton key={action} action={action}
-                  disabled={!canPositionShip(candidate, ships)} onClick={() => moveShip(candidate)} />;
+                return (
+                  <ShipControlButton
+                    key={action}
+                    action={action}
+                    disabled={!canPositionShip(candidate, ships)}
+                    onClick={() => moveShip(candidate)}
+                  />);
               })}
             </div>
           </div>
@@ -107,6 +117,7 @@ export const ShipPlacement = (props: Props) => {
       <Button disabled={Boolean(selected) || !isFleetComplete(ships)} onClick={() => {
         if (!selected && isFleetComplete(ships)) props.onReady(createBoardFromShips(ships));
       }}>{t('placement.ready')}</Button>
+
     </section>
   );
 };

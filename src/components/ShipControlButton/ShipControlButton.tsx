@@ -16,7 +16,12 @@ export const ShipControlButton = (props: Props) => {
   const { t } = useTranslation();
 
   return (
-    <IconButton className={`ship-control ${props.action}`} icon={symbols[props.action]}
-      label={t(`placement.${props.action}`)} disabled={props.disabled} onClick={props.onClick} />
+    <IconButton
+      className={`ship-control ${props.action}`}
+      icon={symbols[props.action]}
+      label={t(`placement.${props.action}`)}
+      disabled={props.disabled}
+      onClick={props.onClick}
+    />
   );
 };

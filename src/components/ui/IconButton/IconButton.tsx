@@ -11,7 +11,12 @@ export const IconButton = (props: Props) => {
   const { icon, label, className = '', ...buttonProps } = props;
 
   return (
-    <Button {...buttonProps} className={`icon-button ${className}`.trim()} aria-label={label} title={label}>
+    <Button
+      {...buttonProps}
+      className={`icon-button ${className}`.trim()}
+      aria-label={label}
+      title={label}
+    >
       <span aria-hidden="true">{icon}</span>
     </Button>
   );

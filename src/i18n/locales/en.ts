@@ -48,6 +48,7 @@ export const en = {
     first: { player: 'You go first.', bot: 'The computer goes first.' },
   },
   game: {
+    start: 'Start game',
     reset: 'Reset game',
     journalBoard: 'Battle log',
     playerBoard: 'My board',

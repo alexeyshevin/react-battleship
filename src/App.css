@@ -19,3 +19,9 @@
   gap: 40px;
   margin-top: 20px;
 }
+
+.game-start {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}

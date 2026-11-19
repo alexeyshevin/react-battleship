@@ -42,6 +42,7 @@ export const ru = {
     first: { player: 'Первым ходишь ты.', bot: 'Первым ходит компьютер.' },
   },
   game: {
+    start: 'Начать игру',
     reset: 'Сбросить игру',
     journalBoard: 'Боевой журнал',
     playerBoard: 'Моё поле',

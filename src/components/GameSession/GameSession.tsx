@@ -27,10 +27,12 @@ export const GameSession = (props: Props) => {
       createEmptyBoard(),
   );
   const [isPrepared, setIsPrepared] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
   const [firstPlayer, setFirstPlayer] = useState<Player | null>(null);
   const [drawVersion, setDrawVersion] = useState(0);
   const handleDrawComplete = useCallback((player: Player) => setFirstPlayer(player), []);
-  const canShoot = isPrepared && props.mode === 'bot' && firstPlayer === 'player';
+  const canStart = isPrepared && (props.mode === 'journal' || firstPlayer !== null);
+  const canShoot = isStarted && props.mode === 'bot' && firstPlayer === 'player';
   const [message, setMessage] = useState<GameStatusKey>('ready');
 
   function handleEnemyCellClick(row: number, col: number) {
@@ -54,7 +56,13 @@ export const GameSession = (props: Props) => {
     setIsPrepared(true);
   }
 
+  function startGame() {
+    if (!canStart || isStarted) return;
+    setIsStarted(true);
+  }
+
   function resetGame() {
+    setIsStarted(false);
     setIsPrepared(false);
     setFirstPlayer(null);
     setDrawVersion((version) => version + 1);
@@ -68,13 +76,18 @@ export const GameSession = (props: Props) => {
       <h2 id="game-mode-title">{t(`modes.${props.mode}.title`)}</h2>
       {canShoot && <GameStatus message={t(`game.status.${message}`)} />}
       <p>{t(`modes.${props.mode}.description`)}</p>
-      {isPrepared && props.mode === 'bot' && (
-        <TurnDraw key={drawVersion} onComplete={handleDrawComplete} />
-      )}
       <div className="game-actions">
         <Button onClick={resetGame}>{t('game.reset')}</Button>
         <Button onClick={props.onBack}>{t('modes.back')}</Button>
       </div>
+      {canStart && !isStarted && (
+        <div className="game-start">
+          <Button onClick={startGame}>{t('game.start')}</Button>
+        </div>
+      )}
+      {isPrepared && !isStarted && props.mode === 'bot' && (
+        <TurnDraw key={drawVersion} onComplete={handleDrawComplete} />
+      )}
       {!isPrepared && <ShipPlacement key={drawVersion} onReady={finishPlacement} />}
       {isPrepared && <div className="boards">
         <Board title={t('game.playerBoard')} board={playerBoard} />
