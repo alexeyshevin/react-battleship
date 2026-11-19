@@ -1,0 +1,70 @@
+.ship-placement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-block: 24px;
+}
+
+.fleet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 480px;
+  max-width: 100%;
+}
+
+.fleet-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 6px;
+  text-align: left;
+}
+
+.placement-field {
+  position: relative;
+  width: 338px;
+  max-width: 100%;
+  padding-top: 36px;
+}
+
+.placement-field .board-panel h2 {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.placement-controls-layer {
+  position: absolute;
+  inset: 36px 0 0;
+  pointer-events: none;
+}
+
+.ship-controls {
+  position: absolute;
+  width: 104px;
+  height: 104px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.ship-control {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #fff;
+  color: #173965;
+  border: 1px solid #173965;
+  pointer-events: auto;
+}
+
+.ship-control:disabled { opacity: 0.55; }
+.ship-control.up { top: 0; left: 36px; }
+.ship-control.down { bottom: 0; left: 36px; }
+.ship-control.left { left: 0; top: 36px; }
+.ship-control.right { right: 0; top: 36px; }
+.ship-control.clockwise { right: 0; top: 0; }
+.ship-control.counterclockwise { left: 0; top: 0; }

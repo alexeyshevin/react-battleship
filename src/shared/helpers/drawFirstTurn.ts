@@ -11,4 +11,4 @@ export const chooseBotNumber = (playerNumber: number): number => {
 
 export const drawFirstTurn = (): Player => {
   return Math.random() < 0.5 ? 'player' : 'bot';
-}
+};

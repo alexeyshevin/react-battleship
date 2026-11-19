@@ -20,3 +20,8 @@
 .cell.ship { background: #555; }
 .cell.hit { background: #e63946; }
 .cell.miss { background: #f1faee; }
+
+.cell.selected {
+  background: #2457a6;
+  box-shadow: inset 0 0 0 2px #fff;
+}

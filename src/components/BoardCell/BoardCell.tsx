@@ -5,6 +5,7 @@ import './BoardCell.css';
 type Props = {
   cell: Readonly<Cell>;
   concealShip?: boolean;
+  selected?: boolean;
   label: string;
   onClick?: () => void;
 }
@@ -24,7 +25,8 @@ export const BoardCell = (props: Props) => {
   return (
     <button
       type="button"
-      className={`cell ${state}`.trim()}
+      className={`cell ${state} ${props.selected ? 'selected' : ''}`.trim()}
+      aria-pressed={props.selected}
       aria-label={t('cell.label', { coordinates: props.label, description })}
       disabled={isDisabled}
       onClick={props.onClick}

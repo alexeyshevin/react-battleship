@@ -4,7 +4,8 @@ import type { ru } from '../../i18n/locales/ru';
 
 import { createBoardWithShips } from '../../shared/helpers/createBoardWithShips';
 import { createEmptyBoard } from '../../shared/helpers/createEmptyBoard';
-import type { GameMode, Player } from '../../shared/types';
+import type { Board as BoardModel, GameMode, Player } from '../../shared/types';
+import { ShipPlacement } from '../ShipPlacement/ShipPlacement';
 import { TurnDraw } from '../TurnDraw/TurnDraw';
 import { Board } from '../Board/Board';
 import { GameStatus } from '../GameStatus/GameStatus';
@@ -19,16 +20,17 @@ type Props = {
 
 export const GameSession = (props: Props) => {
   const { t } = useTranslation();
-  const [playerBoard, setPlayerBoard] = useState(createBoardWithShips);
+  const [playerBoard, setPlayerBoard] = useState(createEmptyBoard);
   const [enemyBoard, setEnemyBoard] = useState(
     () => props.mode === 'bot' ?
       createBoardWithShips() :
       createEmptyBoard(),
   );
+  const [isPrepared, setIsPrepared] = useState(false);
   const [firstPlayer, setFirstPlayer] = useState<Player | null>(null);
   const [drawVersion, setDrawVersion] = useState(0);
   const handleDrawComplete = useCallback((player: Player) => setFirstPlayer(player), []);
-  const canShoot = props.mode === 'bot' && firstPlayer === 'player';
+  const canShoot = isPrepared && props.mode === 'bot' && firstPlayer === 'player';
   const [message, setMessage] = useState<GameStatusKey>('ready');
 
   function handleEnemyCellClick(row: number, col: number) {
@@ -47,10 +49,16 @@ export const GameSession = (props: Props) => {
     setEnemyBoard(updatedBoard);
   }
 
+  function finishPlacement(board: BoardModel) {
+    setPlayerBoard(board);
+    setIsPrepared(true);
+  }
+
   function resetGame() {
+    setIsPrepared(false);
     setFirstPlayer(null);
     setDrawVersion((version) => version + 1);
-    setPlayerBoard(createBoardWithShips());
+    setPlayerBoard(createEmptyBoard());
     setEnemyBoard(props.mode === 'bot' ? createBoardWithShips() : createEmptyBoard());
     setMessage('newGame');
   }
@@ -60,14 +68,15 @@ export const GameSession = (props: Props) => {
       <h2 id="game-mode-title">{t(`modes.${props.mode}.title`)}</h2>
       {canShoot && <GameStatus message={t(`game.status.${message}`)} />}
       <p>{t(`modes.${props.mode}.description`)}</p>
-      {props.mode === 'bot' && (
+      {isPrepared && props.mode === 'bot' && (
         <TurnDraw key={drawVersion} onComplete={handleDrawComplete} />
       )}
       <div className="game-actions">
         <Button onClick={resetGame}>{t('game.reset')}</Button>
         <Button onClick={props.onBack}>{t('modes.back')}</Button>
       </div>
-      <div className="boards">
+      {!isPrepared && <ShipPlacement key={drawVersion} onReady={finishPlacement} />}
+      {isPrepared && <div className="boards">
         <Board title={t('game.playerBoard')} board={playerBoard} />
         <Board
           title={t(props.mode === 'bot' ? 'game.enemyBoard' : 'game.journalBoard')}
@@ -75,7 +84,7 @@ export const GameSession = (props: Props) => {
           concealShips
           onCellClick={canShoot ? handleEnemyCellClick : undefined}
         />
-      </div>
+      </div>}
     </section>
   );
 };

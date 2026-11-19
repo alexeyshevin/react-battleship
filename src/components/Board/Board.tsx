@@ -9,6 +9,7 @@ type Props = {
   title: string;
   board: BoardView;
   concealShips?: boolean;
+  isCellSelected?: (row: number, col: number) => boolean;
   onCellClick?: (row: number, col: number) => void;
 }
 
@@ -23,6 +24,7 @@ export const Board = (props: Props) => {
           <BoardCell
             key={`${rowIndex}-${colIndex}`}
             cell={cell}
+            selected={props.isCellSelected?.(rowIndex, colIndex)}
             concealShip={props.concealShips}
             label={t('cell.coordinates', { row: rowIndex + 1, col: colIndex + 1 })}
             onClick={props.onCellClick ? () => props.onCellClick?.(rowIndex, colIndex) : undefined}
