@@ -20,6 +20,12 @@
   outline-offset: 2px;
 }
 
+.draw-countdown {
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .draw-roulette {
   display: grid;
   place-items: center;

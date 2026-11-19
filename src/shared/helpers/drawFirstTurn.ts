@@ -1,6 +1,7 @@
 import type { Player } from '../types';
 
 export const DRAW_NUMBERS = Array.from({ length: 10 }, (_, index) => index + 1);
+
 export const DRAW_DURATION_MS = 5000;
 
 export const chooseBotNumber = (playerNumber: number): number => {
@@ -8,4 +9,6 @@ export const chooseBotNumber = (playerNumber: number): number => {
   return availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
 };
 
-export const drawFirstTurn = (): Player => Math.random() < 0.5 ? 'player' : 'bot';
+export const drawFirstTurn = (): Player => {
+  return Math.random() < 0.5 ? 'player' : 'bot';
+}

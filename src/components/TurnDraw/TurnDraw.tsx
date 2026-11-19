@@ -12,6 +12,7 @@ type Props = {
 export const TurnDraw = (props: Props) => {
   const { t } = useTranslation();
   const [draw, setDraw] = useState<DrawState>({ phase: 'choosing', selection: null });
+  const [secondsRemaining, setSecondsRemaining] = useState(DRAW_DURATION_MS / 1000);
   const { onComplete } = props;
 
   useEffect(() => {
@@ -19,12 +20,21 @@ export const TurnDraw = (props: Props) => {
       return;
     }
 
+    const deadline = performance.now() + DRAW_DURATION_MS;
+    const interval = window.setInterval(() => {
+      const remaining = Math.max(0, deadline - performance.now());
+      setSecondsRemaining(Math.ceil(remaining / 1000));
+    }, 100);
+
     const timeout = window.setTimeout(() => {
       setDraw({ ...draw, phase: 'complete' });
       onComplete(draw.winner);
     }, DRAW_DURATION_MS);
 
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearInterval(interval);
+    };
   }, [draw, onComplete]);
 
   const selectNumber = (playerNumber: number) => {
@@ -42,6 +52,8 @@ export const TurnDraw = (props: Props) => {
     if (draw.phase !== 'choosing' || !draw.selection) {
       return;
     }
+
+    setSecondsRemaining(DRAW_DURATION_MS / 1000);
 
     setDraw({ phase: 'spinning', selection: draw.selection, winner: drawFirstTurn() });
   };
@@ -74,6 +86,9 @@ export const TurnDraw = (props: Props) => {
       {draw.phase === 'spinning' && (
         <>
           <p role="status">{t('draw.spinning')}</p>
+          <p className="draw-countdown" role="timer" aria-live="off">
+            {t('draw.countdown', { seconds: secondsRemaining })}
+          </p>
           <div className="draw-roulette" aria-hidden="true">
             <span className="draw-roulette-player">{draw.selection.playerNumber}</span>
             <span className="draw-roulette-bot">{draw.selection.botNumber}</span>
