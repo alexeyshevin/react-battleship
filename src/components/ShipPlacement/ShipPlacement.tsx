@@ -78,17 +78,24 @@ export const ShipPlacement = (props: Props) => {
             <li key={type}>
               <span>{t(`placement.ships.${type}`)} · {t('placement.length', { count: definition.length })}</span>
               <span>{t('placement.remaining', { count: remaining })}</span>
-              <ShipPlacementButton shipType={type} isConfirming={isConfirming}
+              <ShipPlacementButton
+                shipType={type}
+                isConfirming={isConfirming}
                 disabled={!isConfirming && (remaining === 0 || Boolean(selected))}
-                onClick={isConfirming ? confirmShip : () => addShip(type)} />
+                onClick={isConfirming ? confirmShip : () => addShip(type)}
+              />
             </li>
           );
         })}
       </ul>
       {noSpace && <p role="status">{t('placement.noSpace')}</p>}
       <div className="placement-field">
-        <Board title={t('game.playerBoard')} board={board} onCellClick={selectCell}
-          isCellSelected={(row, col) => selectedCells.some((cell) => cell.row === row && cell.col === col)} />
+        <Board
+          title={t('game.playerBoard')}
+          board={board}
+          onCellClick={selectCell}
+          isCellSelected={(row, col) => selectedCells.some((cell) => cell.row === row && cell.col === col)}
+        />
         {selected && (
           <div className="placement-controls-layer">
             <div className="ship-controls" role="group" aria-label={t('placement.controls')}
@@ -114,9 +121,14 @@ export const ShipPlacement = (props: Props) => {
         )}
       </div>
       {selected && <Button onClick={removeSelected}>{t('placement.remove')}</Button>}
-      <Button disabled={Boolean(selected) || !isFleetComplete(ships)} onClick={() => {
-        if (!selected && isFleetComplete(ships)) props.onReady(createBoardFromShips(ships));
-      }}>{t('placement.ready')}</Button>
+      <Button
+        disabled={Boolean(selected) || !isFleetComplete(ships)}
+        onClick={() => {
+            if (!selected && isFleetComplete(ships)) props.onReady(createBoardFromShips(ships));
+          }}
+      >
+        {t('placement.ready')}
+      </Button>
 
     </section>
   );

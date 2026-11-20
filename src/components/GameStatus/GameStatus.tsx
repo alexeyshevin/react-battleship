@@ -3,5 +3,12 @@ type Props = {
 }
 
 export const GameStatus = (props: Props) => {
-  return <p role="status" aria-atomic="true">{props.message}</p>;
+  return (
+    <p
+      role="status"
+      aria-atomic="true"
+    >
+        {props.message}
+    </p>
+  );
 };
