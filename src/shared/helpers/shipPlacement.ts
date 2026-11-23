@@ -3,7 +3,7 @@ import type {
   Coordinates,
   Direction,
   PlacedShip,
-  ShipType
+  ShipType,
 } from '../types';
 import { createEmptyBoard } from './createEmptyBoard';
 
