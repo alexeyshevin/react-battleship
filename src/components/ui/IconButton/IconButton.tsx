@@ -8,16 +8,18 @@ type Props = Omit<ComponentPropsWithoutRef<'button'>, 'children' | 'aria-label'>
 };
 
 export const IconButton = (props: Props) => {
-  const { icon, label, className = '', ...buttonProps } = props;
+  const buttonProps: Partial<Props> = { ...props };
+  delete buttonProps.icon;
+  delete buttonProps.label;
 
   return (
     <Button
       {...buttonProps}
-      className={`icon-button ${className}`.trim()}
-      aria-label={label}
-      title={label}
+      className={`icon-button ${props.className ?? ''}`.trim()}
+      aria-label={props.label}
+      title={props.label}
     >
-      <span aria-hidden="true">{icon}</span>
+      <span aria-hidden="true">{props.icon}</span>
     </Button>
   );
 };

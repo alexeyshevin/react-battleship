@@ -9,7 +9,11 @@ import { ShipPlacementButton } from '../ShipPlacementButton/ShipPlacementButton'
 import { Button } from '../ui/Button/Button';
 import './ShipPlacement.css';
 
-type Props = { onReady: (board: BoardModel) => void };
+type Props = {
+  onReady: (board: BoardModel) => void;
+};
+
+const shipTypes = Object.keys(SHIP_TYPES) as ShipType[];
 const actions: ShipControlAction[] = ['up', 'down', 'left', 'right', 'counterclockwise', 'clockwise'];
 
 export const ShipPlacement = (props: Props) => {
@@ -21,7 +25,7 @@ export const ShipPlacement = (props: Props) => {
   const selectedCells = selected ? getShipCells(selected) : [];
   const board = createBoardFromShips(ships);
 
-  const addShip = (type: ShipType) => {
+  const handleAdd = (type: ShipType) => {
     if (selected) {
       return;
     }
@@ -61,7 +65,7 @@ export const ShipPlacement = (props: Props) => {
     setNoSpace(false);
   };
 
-  const selectCell = (row: number, col: number) => {
+  const handleSelectCell = (row: number, col: number) => {
     if (selected) {
       return;
     }
@@ -73,7 +77,7 @@ export const ShipPlacement = (props: Props) => {
     }
   };
 
-  const confirmShip = () => {
+  const handleConfirmShip = () => {
     if (!selected || !canPositionShip(selected, ships)) {
       return;
     }
@@ -82,10 +86,59 @@ export const ShipPlacement = (props: Props) => {
     setNoSpace(false);
   };
 
-  const removeSelected = () => {
+  const handleRemoveSelected = () => {
     setShips(ships.filter((ship) => ship.id !== selectedId));
     setSelectedId(null);
     setNoSpace(false);
+  };
+
+  const renderShip = (type: ShipType) => {
+    const definition = SHIP_TYPES[type];
+    const isConfirming = selected?.type === type;
+    const remaining = definition.count - ships.filter((ship) => ship.type === type).length;
+    const handleAddShip = () => handleAdd(type);
+
+    return (
+      <li key={type}>
+        <span>{t(`placement.ships.${type}`)} · {t('placement.length', { count: definition.length })}</span>
+        <span>{t('placement.remaining', { count: remaining })}</span>
+        <ShipPlacementButton
+          shipType={type}
+          isConfirming={isConfirming}
+          disabled={!isConfirming && (remaining === 0 || Boolean(selected))}
+          onClick={isConfirming ? handleConfirmShip : handleAddShip}
+        />
+      </li>
+    );
+  };
+
+  const renderControl = (action: ShipControlAction) => {
+    const isRotation = action === 'clockwise' || action === 'counterclockwise';
+    if (!selected || (isRotation && Number(SHIP_TYPES[selected.type].length) === 1)) {
+      return null;
+    }
+
+    const candidate = getCandidate(selected, action);
+    const handleMoveShip = () => moveShip(candidate);
+
+    return (
+      <ShipControlButton
+        key={action}
+        action={action}
+        disabled={!canPositionShip(candidate, ships)}
+        onClick={handleMoveShip}
+      />
+    );
+  };
+
+  const isCellSelected = (row: number, col: number) =>
+    selectedCells.some((cell) => cell.row === row && cell.col === col);
+
+  const canFinish = !selected && isFleetComplete(ships);
+  const handleReady = () => {
+    if (canFinish) {
+      props.onReady(createBoardFromShips(ships));
+    }
   };
 
   return (
@@ -93,62 +146,30 @@ export const ShipPlacement = (props: Props) => {
       <h3 id="placement-title">{t('placement.title')}</h3>
       <p>{t('placement.instructions')}</p>
       <ul className="fleet-list">
-        {(Object.keys(SHIP_TYPES) as ShipType[]).map((type) => {
-          const definition = SHIP_TYPES[type];
-          const isConfirming = selected?.type === type;
-          const remaining = definition.count - ships.filter((ship) => ship.type === type).length;
-          return (
-            <li key={type}>
-              <span>{t(`placement.ships.${type}`)} · {t('placement.length', { count: definition.length })}</span>
-              <span>{t('placement.remaining', { count: remaining })}</span>
-              <ShipPlacementButton
-                shipType={type}
-                isConfirming={isConfirming}
-                disabled={!isConfirming && (remaining === 0 || Boolean(selected))}
-                onClick={isConfirming ? confirmShip : () => addShip(type)}
-              />
-            </li>
-          );
-        })}
+        {shipTypes.map(renderShip)}
       </ul>
       {noSpace && <p role="status">{t('placement.noSpace')}</p>}
       <div className="placement-field">
         <Board
           title={t('game.playerBoard')}
           board={board}
-          onCellClick={selectCell}
-          isCellSelected={(row, col) => selectedCells.some((cell) => cell.row === row && cell.col === col)}
+          onCellClick={handleSelectCell}
+          isCellSelected={isCellSelected}
         />
         {selected && (
           <div className="placement-controls-layer">
             <div className="ship-controls" role="group" aria-label={t('placement.controls')}
               style={{ left: `clamp(52px, ${(selected.col + 0.5) / SIZE * 100}%, calc(100% - 52px))`,
                 top: `clamp(52px, ${(selected.row + 0.5) / SIZE * 100}%, calc(100% - 52px))` }}>
-              {actions.map((action) => {
-                const isRotation = action === 'clockwise' || action === 'counterclockwise';
-                if (isRotation && Number(SHIP_TYPES[selected.type].length) === 1) {
-                  return null;
-                }
-
-                const candidate = getCandidate(selected, action);
-                return (
-                  <ShipControlButton
-                    key={action}
-                    action={action}
-                    disabled={!canPositionShip(candidate, ships)}
-                    onClick={() => moveShip(candidate)}
-                  />);
-              })}
+              {actions.map(renderControl)}
             </div>
           </div>
         )}
       </div>
-      {selected && <Button onClick={removeSelected}>{t('placement.remove')}</Button>}
+      {selected && <Button onClick={handleRemoveSelected}>{t('placement.remove')}</Button>}
       <Button
-        disabled={Boolean(selected) || !isFleetComplete(ships)}
-        onClick={() => {
-            if (!selected && isFleetComplete(ships)) props.onReady(createBoardFromShips(ships));
-          }}
+        disabled={!canFinish}
+        onClick={handleReady}
       >
         {t('placement.ready')}
       </Button>

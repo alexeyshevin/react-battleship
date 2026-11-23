@@ -1,6 +1,6 @@
 type Props = {
   message: string;
-}
+};
 
 export const GameStatus = (props: Props) => {
   return (
@@ -8,7 +8,7 @@ export const GameStatus = (props: Props) => {
       role="status"
       aria-atomic="true"
     >
-        {props.message}
+      {props.message}
     </p>
   );
 };

@@ -1,9 +1,9 @@
 import type { SHIP_TYPES } from './consts';
 
-export interface Cell {
+export type Cell = {
   ship: boolean;
   hit: boolean;
-}
+};
 
 export type Board = Cell[][];
 

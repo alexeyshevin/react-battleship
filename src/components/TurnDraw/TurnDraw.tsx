@@ -13,7 +13,7 @@ export const TurnDraw = (props: Props) => {
   const { t } = useTranslation();
   const [draw, setDraw] = useState<DrawState>({ phase: 'choosing', selection: null });
   const [secondsRemaining, setSecondsRemaining] = useState(DRAW_DURATION_MS / 1000);
-  const { onComplete } = props;
+  const onComplete = props.onComplete;
 
   useEffect(() => {
     if (draw.phase !== 'spinning') {
@@ -37,7 +37,7 @@ export const TurnDraw = (props: Props) => {
     };
   }, [draw, onComplete]);
 
-  const selectNumber = (playerNumber: number) => {
+  const handleSelectNumber = (playerNumber: number) => {
     if (draw.phase !== 'choosing') {
       return;
     }
@@ -48,7 +48,7 @@ export const TurnDraw = (props: Props) => {
     });
   };
 
-  const startDraw = () => {
+  const handleStartDraw = () => {
     if (draw.phase !== 'choosing' || !draw.selection) {
       return;
     }
@@ -58,6 +58,20 @@ export const TurnDraw = (props: Props) => {
     setDraw({ phase: 'spinning', selection: draw.selection, winner: drawFirstTurn() });
   };
 
+  const renderNumber = (number: number) => {
+    const handleClick = () => handleSelectNumber(number);
+
+    return (
+      <Button
+        key={number}
+        aria-pressed={draw.selection?.playerNumber === number}
+        onClick={handleClick}
+      >
+        {number}
+      </Button>
+    );
+  };
+
   return (
     <section className="turn-draw" aria-labelledby="turn-draw-title">
       <h3 id="turn-draw-title">{t('draw.title')}</h3>
@@ -65,15 +79,7 @@ export const TurnDraw = (props: Props) => {
         <>
           <p>{t('draw.choose')}</p>
           <div className="draw-numbers" role="group" aria-label={t('draw.choose')}>
-            {DRAW_NUMBERS.map((number) => (
-              <Button
-                key={number}
-                aria-pressed={draw.selection?.playerNumber === number}
-                onClick={() => selectNumber(number)}
-              >
-                {number}
-              </Button>
-            ))}
+            {DRAW_NUMBERS.map(renderNumber)}
           </div>
         </>
       )}
@@ -81,7 +87,7 @@ export const TurnDraw = (props: Props) => {
         <p>{t('draw.choices', draw.selection)}</p>
       )}
       {draw.phase === 'choosing' && (
-        <Button disabled={!draw.selection} onClick={startDraw}>{t('draw.start')}</Button>
+        <Button disabled={!draw.selection} onClick={handleStartDraw}>{t('draw.start')}</Button>
       )}
       {draw.phase === 'spinning' && (
         <>

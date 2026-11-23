@@ -3,12 +3,12 @@ import './Button.css';
 
 type Props = ComponentPropsWithoutRef<'button'>;
 
-export const Button = ({ className = '', type = 'button', ...props }: Props) => {
+export const Button = (props: Props) => {
   return (
     <button
-      type={type}
-      className={`button ${className}`.trim()}
       {...props}
+      type={props.type ?? 'button'}
+      className={`button ${props.className ?? ''}`.trim()}
     />
   );
-}
+};

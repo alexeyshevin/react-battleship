@@ -49,22 +49,22 @@ export const GameSession = (props: Props) => {
     updatedBoard[row][col].hit = true;
     setMessage(cell.ship ? 'hit' : 'miss');
     setEnemyBoard(updatedBoard);
-  }
+  };
 
-  const finishPlacement = (board: BoardModel) => {
+  const handleFinishPlacement = (board: BoardModel) => {
     setPlayerBoard(board);
     setIsPrepared(true);
-  }
+  };
 
-  const startGame = () => {
+  const handleStartGame = () => {
     if (!canStart || isStarted) {
       return;
     }
 
     setIsStarted(true);
-  }
+  };
 
-  const resetGame = () => {
+  const handleResetGame = () => {
     setIsStarted(false);
     setIsPrepared(false);
     setFirstPlayer(null);
@@ -72,7 +72,7 @@ export const GameSession = (props: Props) => {
     setPlayerBoard(createEmptyBoard());
     setEnemyBoard(props.mode === 'bot' ? createBoardWithShips() : createEmptyBoard());
     setMessage('newGame');
-  }
+  };
 
   return (
     <section aria-labelledby="game-mode-title">
@@ -81,25 +81,25 @@ export const GameSession = (props: Props) => {
       <p>{t(`modes.${props.mode}.description`)}</p>
       <div className="game-actions">
         <Button
-          onClick={resetGame}
+          onClick={handleResetGame}
         >
-            {t('game.reset')}
+          {t('game.reset')}
         </Button>
         <Button
           onClick={props.onBack}
         >
-            {t('modes.back')}
+          {t('modes.back')}
         </Button>
       </div>
       {canStart && !isStarted && (
         <div className="game-start">
-          <Button onClick={startGame}>{t('game.start')}</Button>
+          <Button onClick={handleStartGame}>{t('game.start')}</Button>
         </div>
       )}
       {isPrepared && !isStarted && props.mode === 'bot' && (
         <TurnDraw key={drawVersion} onComplete={handleDrawComplete} />
       )}
-      {!isPrepared && <ShipPlacement key={drawVersion} onReady={finishPlacement} />}
+      {!isPrepared && <ShipPlacement key={drawVersion} onReady={handleFinishPlacement} />}
       {isPrepared && <div className="boards">
         <Board
           title={t('game.playerBoard')}
