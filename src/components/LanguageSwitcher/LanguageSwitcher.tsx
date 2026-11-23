@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { fallbackLanguage, languages } from '../../i18n/languages';
 import './LanguageSwitcher.css';
 
-type Props = Record<string, never>;
-
 const renderLanguageOption = (language: (typeof languages)[number]) => {
   return (
     <option key={language.code} value={language.code} lang={language.code}>
@@ -13,7 +11,7 @@ const renderLanguageOption = (language: (typeof languages)[number]) => {
   );
 };
 
-export const LanguageSwitcher = (_props: Props) => {
+export const LanguageSwitcher = () => {
   const { t, i18n } = useTranslation();
 
   const handleLanguageChange = (event: ChangeEvent<HTMLSelectElement>) => {

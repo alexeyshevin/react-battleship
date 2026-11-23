@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import './App.css';
+import { GameSession } from './components/GameSession/GameSession';
 import { LanguageSwitcher } from './components/LanguageSwitcher/LanguageSwitcher';
 import { ModeSelection } from './components/ModeSelection/ModeSelection';
-import { GameSession } from './components/GameSession/GameSession';
 import type { GameMode } from './shared/types';
-import './App.css';
 
-type Props = Record<string, never>;
-
-const App = (_props: Props) => {
+const App = () => {
   const { t } = useTranslation();
   const [mode, setMode] = useState<GameMode | null>(null);
 
