@@ -21,6 +21,7 @@ export const ShipPlacement = (props: Props) => {
   const [ships, setShips] = useState<PlacedShip[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [noSpace, setNoSpace] = useState(false);
+  const [isInstructionShown, setIsInstructionShown] = useState<boolean>(false);
   const selected = ships.find((ship) => ship.id === selectedId);
   const selectedCells = selected ? getShipCells(selected) : [];
   const board = createBoardFromShips(ships);
@@ -75,6 +76,12 @@ export const ShipPlacement = (props: Props) => {
     if (ship) {
       setSelectedId(ship.id);
     }
+  };
+
+  const handleToggleInstruction = () => {
+    setIsInstructionShown((isShown) => {
+      return !isShown;
+    });
   };
 
   const handleConfirmShip = () => {
@@ -150,7 +157,25 @@ export const ShipPlacement = (props: Props) => {
   return (
     <section className="ship-placement" aria-labelledby="placement-title">
       <h3 id="placement-title">{t('placement.title')}</h3>
-      <p>{t('placement.instructions')}</p>
+      {!isInstructionShown && (
+        <Button
+          onClick={handleToggleInstruction}
+        >
+          {t('placement.showInstruction')}
+        </Button>
+      )}
+      {isInstructionShown && (
+        <p>
+          {t('placement.instructions')}{' '}
+          <button
+            type="button"
+            className="placement-hide-instruction"
+            onClick={handleToggleInstruction}
+          >
+            {t('placement.hideInstruction')}
+          </button>
+        </p>
+      )}
       {noSpace && <p role="status">{t('placement.noSpace')}</p>}
       <div className="placement-layout">
         <ul className="fleet-list">
