@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SHIP_TYPES, SIZE } from '../../shared/consts';
 import {
@@ -29,14 +30,30 @@ type Props = {
 const shipTypes = Object.keys(SHIP_TYPES) as ShipType[];
 const actions: ShipControlAction[] = ['up', 'down', 'left', 'right', 'counterclockwise', 'clockwise'];
 
+type ControlPosition = CSSProperties & {
+  '--ship-control-x': string;
+  '--ship-control-y': string;
+};
+
+const getCellCenter = (coordinate: number) => {
+  return `${(coordinate + 0.5) / SIZE * 100}%`;
+};
+
 export const ShipPlacement = (props: Props) => {
+  const titleId = useId();
   const { t } = useTranslation();
   const [ships, setShips] = useState<PlacedShip[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [noSpace, setNoSpace] = useState(false);
   const [isInstructionShown, setIsInstructionShown] = useState<boolean>(false);
-  const selected = ships.find((ship) => ship.id === selectedId);
+  const selected = ships.find((ship) => {
+    return ship.id === selectedId;
+  });
   const selectedCells = selected ? getShipCells(selected) : [];
+  const controlPosition: ControlPosition | undefined = selected && {
+    '--ship-control-x': getCellCenter(selected.col),
+    '--ship-control-y': getCellCenter(selected.row),
+  };
   const board = createBoardFromShips(ships);
 
   const handleAdd = (type: ShipType) => {
@@ -75,7 +92,9 @@ export const ShipPlacement = (props: Props) => {
       return;
     }
 
-    setShips(ships.map((ship) => ship.id === candidate.id ? candidate : ship));
+    setShips(ships.map((ship) => {
+      return ship.id === candidate.id ? candidate : ship;
+    }));
     setNoSpace(false);
   };
 
@@ -84,8 +103,11 @@ export const ShipPlacement = (props: Props) => {
       return;
     }
 
-    const ship = ships.find((item) => getShipCells(item)
-      .some((cell) => cell.row === row && cell.col === col));
+    const ship = ships.find((item) => {
+      return getShipCells(item).some((cell) => {
+        return cell.row === row && cell.col === col;
+      });
+    });
     if (ship) {
       setSelectedId(ship.id);
     }
@@ -107,7 +129,9 @@ export const ShipPlacement = (props: Props) => {
   };
 
   const handleRemoveSelected = () => {
-    setShips(ships.filter((ship) => ship.id !== selectedId));
+    setShips(ships.filter((ship) => {
+      return ship.id !== selectedId;
+    }));
     setSelectedId(null);
     setNoSpace(false);
   };
@@ -121,8 +145,14 @@ export const ShipPlacement = (props: Props) => {
   const renderShip = (type: ShipType) => {
     const definition = SHIP_TYPES[type];
     const isConfirming = selected?.type === type;
-    const remaining = definition.count - ships.filter((ship) => ship.type === type).length;
-    const handleAddShip = () => handleAdd(type);
+    const placedCount = ships.filter((ship) => {
+      return ship.type === type;
+    }).length;
+    const remaining = definition.count - placedCount;
+    const isAddDisabled = !isConfirming && (remaining === 0 || Boolean(selected));
+    const handleAddShip = () => {
+      handleAdd(type);
+    };
 
     return (
       <li key={type}>
@@ -131,7 +161,7 @@ export const ShipPlacement = (props: Props) => {
         <ShipPlacementButton
           shipType={type}
           isConfirming={isConfirming}
-          disabled={!isConfirming && (remaining === 0 || Boolean(selected))}
+          disabled={isAddDisabled}
           onClick={isConfirming ? handleConfirmShip : handleAddShip}
         />
       </li>
@@ -145,20 +175,26 @@ export const ShipPlacement = (props: Props) => {
     }
 
     const candidate = getCandidate(selected, action);
-    const handleMoveShip = () => moveShip(candidate);
+    const canMove = canPositionShip(candidate, ships);
+    const handleMoveShip = () => {
+      moveShip(candidate);
+    };
 
     return (
       <ShipControlButton
         key={action}
         action={action}
-        disabled={!canPositionShip(candidate, ships)}
+        disabled={!canMove}
         onClick={handleMoveShip}
       />
     );
   };
 
-  const isCellSelected = (row: number, col: number) =>
-    selectedCells.some((cell) => cell.row === row && cell.col === col);
+  const isCellSelected = (row: number, col: number) => {
+    return selectedCells.some((cell) => {
+      return cell.row === row && cell.col === col;
+    });
+  };
 
   const canFinish = !selected && isFleetComplete(ships);
   const handleReady = () => {
@@ -168,8 +204,8 @@ export const ShipPlacement = (props: Props) => {
   };
 
   return (
-    <section className="ship-placement" aria-labelledby="placement-title">
-      <h3 id="placement-title">{t('placement.title')}</h3>
+    <section className="ship-placement" aria-labelledby={titleId}>
+      <h3 id={titleId}>{t('placement.title')}</h3>
       {!isInstructionShown && (
         <Button
           onClick={handleToggleInstruction}
@@ -202,11 +238,9 @@ export const ShipPlacement = (props: Props) => {
             onCellClick={handleSelectCell}
             isCellSelected={isCellSelected}
           />
-          {selected && (
+          {controlPosition && (
             <div className="placement-controls-layer">
-              <div className="ship-controls" role="group" aria-label={t('placement.controls')}
-                style={{ left: `clamp(52px, ${(selected.col + 0.5) / SIZE * 100}%, calc(100% - 52px))`,
-                  top: `clamp(52px, ${(selected.row + 0.5) / SIZE * 100}%, calc(100% - 52px))` }}>
+              <div className="ship-controls" role="group" aria-label={t('placement.controls')} style={controlPosition}>
                 {actions.map(renderControl)}
               </div>
             </div>

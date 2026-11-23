@@ -8,7 +8,7 @@ type Props = {
   selected?: boolean;
   label: string;
   onClick?: () => void;
-}
+};
 
 export const BoardCell = (props: Props) => {
   const { t } = useTranslation();

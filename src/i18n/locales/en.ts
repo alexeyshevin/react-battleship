@@ -42,7 +42,7 @@ export const en = {
   },
   draw: {
     title: 'Who goes first?',
-    choose: 'Choose a number from 1 to 10',
+    choose: 'Choose a number from {{min}} to {{max}}',
     choices: 'Your number: {{playerNumber}}. Computer’s number: {{botNumber}}.',
     start: 'Start the draw',
     spinning: 'Drawing…',

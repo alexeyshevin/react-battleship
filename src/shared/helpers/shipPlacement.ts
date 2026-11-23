@@ -11,14 +11,17 @@ const vectors: Coordinates[] = [
   { row: 0, col: 1 }, { row: 1, col: 0 },
   { row: 0, col: -1 }, { row: -1, col: 0 },
 ];
+const placementDirections: readonly Direction[] = [0, 1];
 const SHIP_CLEARANCE = 1;
 
 export const getShipCells = (ship: PlacedShip): Coordinates[] => {
   const vector = vectors[ship.direction];
-  return Array.from({ length: SHIP_TYPES[ship.type].length }, (_, index) => ({
-    row: ship.row + vector.row * index,
-    col: ship.col + vector.col * index,
-  }));
+  return Array.from({ length: SHIP_TYPES[ship.type].length }, (_, index) => {
+    return {
+      row: ship.row + vector.row * index,
+      col: ship.col + vector.col * index,
+    };
+  });
 };
 
 const getBlockedCells = (ships: readonly PlacedShip[]): Set<string> => {
@@ -47,25 +50,35 @@ export const canPositionShip = (ship: PlacedShip, ships: readonly PlacedShip[]):
 };
 
 export const findShipPosition = (type: ShipType, ships: readonly PlacedShip[]): PlacedShip | null => {
-  if (ships.filter((ship) => ship.type === type).length >= SHIP_TYPES[type].count) {
+  const placedCount = ships.filter((ship) => {
+    return ship.type === type;
+  }).length;
+  if (placedCount >= SHIP_TYPES[type].count) {
     return null;
   }
-  const id = Math.max(0, ...ships.map((ship) => ship.id)) + 1;
+  const shipIds = ships.map((ship) => {
+    return ship.id;
+  });
+  const id = Math.max(0, ...shipIds) + 1;
   const blocked = getBlockedCells(ships);
   for (let row = 0; row < SIZE; row++) {
     for (let col = 0; col < SIZE; col++) {
-      for (const direction of [0, 1] as const) {
+      for (const direction of placementDirections) {
         const ship = { id, type, row, col, direction };
-        if (canOccupyCells(ship, blocked)) return ship;
+        if (canOccupyCells(ship, blocked)) {
+          return ship;
+        }
       }
     }
   }
   return null;
 };
 
-const fleetTypes = (Object.keys(SHIP_TYPES) as ShipType[]).flatMap((type) =>
-  Array.from({ length: SHIP_TYPES[type].count }, () => type),
-);
+const fleetTypes = (Object.keys(SHIP_TYPES) as ShipType[]).flatMap((type) => {
+  return Array.from({ length: SHIP_TYPES[type].count }, () => {
+    return type;
+  });
+});
 
 export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip[] => {
   const previousBoard = createBoardFromShips(previousShips);
@@ -73,9 +86,11 @@ export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip
 
   const placeNextShip = (): boolean => {
     if (ships.length === fleetTypes.length) {
-      return previousShips.length !== ships.length || ships.some((ship) =>
-        getShipCells(ship).some(({ row, col }) => !previousBoard[row][col].ship),
-      );
+      return previousShips.length !== ships.length || ships.some((ship) => {
+        return getShipCells(ship).some(({ row, col }) => {
+          return !previousBoard[row][col].ship;
+        });
+      });
     }
 
     const type = fleetTypes[ships.length];
@@ -85,7 +100,7 @@ export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip
 
     for (let row = 0; row < SIZE; row++) {
       for (let col = 0; col < SIZE; col++) {
-        for (const direction of [0, 1] as const) {
+        for (const direction of placementDirections) {
           const ship = { id, type, row, col, direction };
           if (canOccupyCells(ship, blocked)) {
             candidates.push(ship);
@@ -114,18 +129,36 @@ export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip
   return ships;
 };
 
-export const rotateShip = (ship: PlacedShip, step: -1 | 1): PlacedShip => ({
-  ...ship, direction: ((ship.direction + step + 4) % 4) as Direction,
-});
+export const rotateShip = (ship: PlacedShip, step: -1 | 1): PlacedShip => {
+  const directionCount = vectors.length;
+  const direction = ((ship.direction + step + directionCount) % directionCount) as Direction;
+  return { ...ship, direction };
+};
 
-export const isFleetComplete = (ships: readonly PlacedShip[]): boolean =>
-  new Set(ships.map((ship) => ship.id)).size === ships.length &&
-  Object.entries(SHIP_TYPES).every(([type, definition]) =>
-    ships.filter((ship) => ship.type === type).length === definition.count,
-  ) && ships.every((ship) => canPositionShip(ship, ships));
+export const isFleetComplete = (ships: readonly PlacedShip[]): boolean => {
+  const shipIds = ships.map((ship) => {
+    return ship.id;
+  });
+  if (new Set(shipIds).size !== ships.length) {
+    return false;
+  }
+
+  const hasRequiredCounts = Object.entries(SHIP_TYPES).every(([type, definition]) => {
+    const placedCount = ships.filter((ship) => {
+      return ship.type === type;
+    }).length;
+    return placedCount === definition.count;
+  });
+
+  return hasRequiredCounts && ships.every((ship) => {
+    return canPositionShip(ship, ships);
+  });
+};
 
 export const createBoardFromShips = (ships: readonly PlacedShip[]) => {
   const board = createEmptyBoard();
-  ships.flatMap(getShipCells).forEach(({ row, col }) => { board[row][col].ship = true; });
+  for (const { row, col } of ships.flatMap(getShipCells)) {
+    board[row][col].ship = true;
+  }
   return board;
 };

@@ -12,8 +12,13 @@ const App = (_props: Props) => {
   const { t } = useTranslation();
   const [mode, setMode] = useState<GameMode | null>(null);
 
-  const handleModeSelect = (selectedMode: GameMode) => setMode(selectedMode);
-  const handleBack = () => setMode(null);
+  const handleModeSelect = (selectedMode: GameMode) => {
+    setMode(selectedMode);
+  };
+
+  const handleBack = () => {
+    setMode(null);
+  };
 
   return (
     <main className="game">

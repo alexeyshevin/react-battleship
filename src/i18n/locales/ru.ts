@@ -36,7 +36,7 @@ export const ru = {
   },
   draw: {
     title: 'Кто ходит первым?',
-    choose: 'Выбери число от 1 до 10',
+    choose: 'Выбери число от {{min}} до {{max}}',
     choices: 'Твоё число: {{playerNumber}}. Число компьютера: {{botNumber}}.',
     start: 'Запустить жеребьёвку',
     spinning: 'Жеребьёвка…',

@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameMode } from '../../shared/types';
 import { Button } from '../ui/Button/Button';
@@ -10,10 +11,13 @@ type Props = {
 const modes: GameMode[] = ['bot', 'journal'];
 
 export const ModeSelection = (props: Props) => {
+  const titleId = useId();
   const { t } = useTranslation();
 
   const renderMode = (mode: GameMode) => {
-    const handleSelect = () => props.onSelect(mode);
+    const handleSelect = () => {
+      props.onSelect(mode);
+    };
 
     return (
       <article className="mode-card" key={mode}>
@@ -27,8 +31,8 @@ export const ModeSelection = (props: Props) => {
   };
 
   return (
-    <section aria-labelledby="mode-selection-title">
-      <h2 id="mode-selection-title">{t('modes.choose')}</h2>
+    <section aria-labelledby={titleId}>
+      <h2 id={titleId}>{t('modes.choose')}</h2>
       <div className="mode-selection">
         {modes.map(renderMode)}
       </div>

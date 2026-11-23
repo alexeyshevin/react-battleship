@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   chooseBotNumber,
   DRAW_DURATION_MS,
   DRAW_NUMBERS,
+  DRAW_RANGE,
   drawFirstTurn,
 } from '../../shared/helpers/drawFirstTurn';
 import type { DrawState, Player } from '../../shared/types';
@@ -14,10 +15,16 @@ type Props = {
   onComplete: (firstPlayer: Player) => void;
 };
 
+const MILLISECONDS_PER_SECOND = 1000;
+const COUNTDOWN_REFRESH_MS = 100;
+const DRAW_DURATION_SECONDS = DRAW_DURATION_MS / MILLISECONDS_PER_SECOND;
+
 export const TurnDraw = (props: Props) => {
+  const titleId = useId();
   const { t } = useTranslation();
+  const chooseNumberLabel = t('draw.choose', DRAW_RANGE);
   const [draw, setDraw] = useState<DrawState>({ phase: 'choosing', selection: null });
-  const [secondsRemaining, setSecondsRemaining] = useState(DRAW_DURATION_MS / 1000);
+  const [secondsRemaining, setSecondsRemaining] = useState(DRAW_DURATION_SECONDS);
   const onComplete = props.onComplete;
 
   useEffect(() => {
@@ -28,8 +35,8 @@ export const TurnDraw = (props: Props) => {
     const deadline = performance.now() + DRAW_DURATION_MS;
     const interval = window.setInterval(() => {
       const remaining = Math.max(0, deadline - performance.now());
-      setSecondsRemaining(Math.ceil(remaining / 1000));
-    }, 100);
+      setSecondsRemaining(Math.ceil(remaining / MILLISECONDS_PER_SECOND));
+    }, COUNTDOWN_REFRESH_MS);
 
     const timeout = window.setTimeout(() => {
       setDraw({ ...draw, phase: 'complete' });
@@ -58,19 +65,21 @@ export const TurnDraw = (props: Props) => {
       return;
     }
 
-    setSecondsRemaining(DRAW_DURATION_MS / 1000);
+    setSecondsRemaining(DRAW_DURATION_SECONDS);
 
     setDraw({ phase: 'spinning', selection: draw.selection, winner: drawFirstTurn() });
   };
 
   const renderNumber = (number: number) => {
-    const handleClick = () => handleSelectNumber(number);
+    const handleNumberClick = () => {
+      handleSelectNumber(number);
+    };
 
     return (
       <Button
         key={number}
         aria-pressed={draw.selection?.playerNumber === number}
-        onClick={handleClick}
+        onClick={handleNumberClick}
       >
         {number}
       </Button>
@@ -78,12 +87,12 @@ export const TurnDraw = (props: Props) => {
   };
 
   return (
-    <section className="turn-draw" aria-labelledby="turn-draw-title">
-      <h3 id="turn-draw-title">{t('draw.title')}</h3>
+    <section className="turn-draw" aria-labelledby={titleId}>
+      <h3 id={titleId}>{t('draw.title')}</h3>
       {draw.phase === 'choosing' && (
         <>
-          <p>{t('draw.choose')}</p>
-          <div className="draw-numbers" role="group" aria-label={t('draw.choose')}>
+          <p>{chooseNumberLabel}</p>
+          <div className="draw-numbers" role="group" aria-label={chooseNumberLabel}>
             {DRAW_NUMBERS.map(renderNumber)}
           </div>
         </>

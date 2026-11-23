@@ -9,13 +9,18 @@ type Props = {
   onClick: () => void;
 };
 
+const placementIcons = {
+  confirm: '✓',
+  add: '+',
+};
+
 export const ShipPlacementButton = (props: Props) => {
   const { t } = useTranslation();
   const labelKey = props.isConfirming ? 'placement.confirm' : 'placement.add';
   const label = t(labelKey, { ship: t(`placement.ships.${props.shipType}`) });
+  const icon = props.isConfirming ? placementIcons.confirm : placementIcons.add;
 
   return (
-    <IconButton icon={props.isConfirming ? '✓' : '+'} label={label}
-      disabled={props.disabled} onClick={props.onClick} />
+    <IconButton icon={icon} label={label} disabled={props.disabled} onClick={props.onClick} />
   );
 };

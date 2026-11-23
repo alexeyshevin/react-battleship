@@ -18,7 +18,9 @@ void i18n
   .init({
     initAsync: false,
     resources: { ru: { translation: ru }, en: { translation: en } },
-    supportedLngs: languages.map((language) => language.code),
+    supportedLngs: languages.map((language) => {
+      return language.code;
+    }),
     fallbackLng: fallbackLanguage,
     load: 'languageOnly',
     detection: {

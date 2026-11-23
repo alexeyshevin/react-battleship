@@ -5,11 +5,13 @@ import './LanguageSwitcher.css';
 
 type Props = Record<string, never>;
 
-const renderLanguageOption = (language: (typeof languages)[number]) => (
-  <option key={language.code} value={language.code} lang={language.code}>
-    {language.label}
-  </option>
-);
+const renderLanguageOption = (language: (typeof languages)[number]) => {
+  return (
+    <option key={language.code} value={language.code} lang={language.code}>
+      {language.label}
+    </option>
+  );
+};
 
 export const LanguageSwitcher = (_props: Props) => {
   const { t, i18n } = useTranslation();

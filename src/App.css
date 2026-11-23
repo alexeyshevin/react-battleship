@@ -56,7 +56,7 @@
     margin-block: 4px;
   }
 
-  .game:has(.ship-placement) #game-mode-title {
+  .game:has(.ship-placement) .game-mode-title {
     font-size: 18px;
     margin-block-end: 4px;
   }

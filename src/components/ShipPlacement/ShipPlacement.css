@@ -89,9 +89,13 @@
 }
 
 .ship-controls {
+  --ship-controls-size: 104px;
+  --ship-controls-radius: calc(var(--ship-controls-size) / 2);
   position: absolute;
-  width: 104px;
-  height: 104px;
+  left: clamp(var(--ship-controls-radius), var(--ship-control-x), calc(100% - var(--ship-controls-radius)));
+  top: clamp(var(--ship-controls-radius), var(--ship-control-y), calc(100% - var(--ship-controls-radius)));
+  width: var(--ship-controls-size);
+  height: var(--ship-controls-size);
   transform: translate(-50%, -50%);
   pointer-events: none;
 }

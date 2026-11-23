@@ -19,7 +19,9 @@ export const Board = (props: Props) => {
 
   const renderRow = (row: BoardView[number], rowIndex: number) => {
     const renderCell = (cell: Readonly<Cell>, colIndex: number) => {
-      const handleCellClick = () => props.onCellClick?.(rowIndex, colIndex);
+      const handleCellClick = () => {
+        props.onCellClick?.(rowIndex, colIndex);
+      };
 
       return (
         <BoardCell
