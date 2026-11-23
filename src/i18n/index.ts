@@ -1,11 +1,12 @@
 import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
+import { fallbackLanguage, languages } from './languages';
 import { ru } from './locales/ru';
 import { en } from './locales/en';
 
 const updateDocumentLanguage = () => {
-  document.documentElement.lang = i18n.resolvedLanguage ?? 'ru';
+  document.documentElement.lang = i18n.resolvedLanguage ?? fallbackLanguage;
   document.title = i18n.t('app.title');
 };
 
@@ -17,8 +18,8 @@ void i18n
   .init({
     initAsync: false,
     resources: { ru: { translation: ru }, en: { translation: en } },
-    supportedLngs: ['ru', 'en'],
-    fallbackLng: 'ru',
+    supportedLngs: languages.map((language) => language.code),
+    fallbackLng: fallbackLanguage,
     load: 'languageOnly',
     detection: {
       order: ['localStorage', 'navigator'],

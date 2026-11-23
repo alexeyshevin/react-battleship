@@ -11,6 +11,7 @@
    - Do not declare additional React components inside another component.
    - Extract additional components into separate files.
    - Helper functions, hooks, and type definitions are allowed in component files when directly related to that component.
+6. Do not use hardcoded values.
 
 ## TypeScript
 
