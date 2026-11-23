@@ -103,6 +103,17 @@ test('fleet limits, removal, readiness and board conversion', () => {
   assert.equal(isFleetComplete([...ships, { ...ship, id: 99 }]), false);
 });
 
+test('manual placement uses the first free anchor and prefers horizontal placement', () => {
+  const type = 'cruiser';
+  assert.deepEqual(findShipPosition(type, []), { id: 1, type, row: 0, col: 0, direction: 0 });
+
+  const blocker = { id: 1, type: 'destroyer', row: 0, col: 2, direction: 0 };
+  assert.deepEqual(findShipPosition(type, [blocker]), { id: 2, type, row: 0, col: 0, direction: 1 });
+
+  const cornerBlocker = { ...blocker, col: 0 };
+  assert.deepEqual(findShipPosition(type, [cornerBlocker]), { id: 2, type, row: 0, col: 3, direction: 0 });
+});
+
 test('full board has no spawn position', () => {
   const occupied = Array.from({ length: SIZE ** 2 }, (_, index) => {
     return {

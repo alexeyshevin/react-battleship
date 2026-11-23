@@ -14,14 +14,53 @@ const vectors: Coordinates[] = [
 const placementDirections: readonly Direction[] = [0, 1];
 const SHIP_CLEARANCE = 1;
 
-export const getShipCells = (ship: PlacedShip): Coordinates[] => {
+type Position = Omit<PlacedShip, 'id' | 'type'>;
+type Placement = { position: Position; cells: Coordinates[] };
+
+const getCells = (ship: Position, length: number): Coordinates[] => {
   const vector = vectors[ship.direction];
-  return Array.from({ length: SHIP_TYPES[ship.type].length }, (_, index) => {
+  return Array.from({ length }, (_, index) => {
     return {
       row: ship.row + vector.row * index,
       col: ship.col + vector.col * index,
     };
   });
+};
+
+export const getShipCells = (ship: PlacedShip): Coordinates[] => {
+  return getCells(ship, SHIP_TYPES[ship.type].length);
+};
+
+const isOnBoard = ({ row, col }: Coordinates): boolean => {
+  return row >= 0 && row < SIZE && col >= 0 && col < SIZE;
+};
+
+const placementsByLength = new Map<number, readonly Placement[]>();
+
+const getPlacements = (type: ShipType): readonly Placement[] => {
+  const length = SHIP_TYPES[type].length;
+  const cached = placementsByLength.get(length);
+  if (cached) {
+    return cached;
+  }
+
+  const placements: Placement[] = [];
+
+  for (let row = 0; row < SIZE; row++) {
+    for (let col = 0; col < SIZE; col++) {
+      for (const direction of placementDirections) {
+        const position = { row, col, direction };
+        const cells = getCells(position, length);
+        if (cells.every(isOnBoard)) {
+          placements.push({ position, cells });
+        }
+      }
+    }
+  }
+
+  placementsByLength.set(length, placements);
+
+  return placements;
 };
 
 const getBlockedCells = (ships: readonly PlacedShip[]): Set<string> => {
@@ -36,9 +75,9 @@ const getBlockedCells = (ships: readonly PlacedShip[]): Set<string> => {
   return blocked;
 };
 
-const canOccupyCells = (ship: PlacedShip, blocked: ReadonlySet<string>): boolean => {
-  return getShipCells(ship).every(({ row, col }) => {
-    return row >= 0 && row < SIZE && col >= 0 && col < SIZE && !blocked.has(`${row}:${col}`);
+const areCellsFree = (cells: Coordinates[], blocked: ReadonlySet<string>): boolean => {
+  return cells.every(({ row, col }) => {
+    return !blocked.has(`${row}:${col}`);
   });
 };
 
@@ -47,7 +86,9 @@ export const canPositionShip = (ship: PlacedShip, ships: readonly PlacedShip[]):
     return other.id !== ship.id;
   });
 
-  return canOccupyCells(ship, getBlockedCells(otherShips));
+  const cells = getShipCells(ship);
+
+  return cells.every(isOnBoard) && areCellsFree(cells, getBlockedCells(otherShips));
 };
 
 export const findShipPosition = (type: ShipType, ships: readonly PlacedShip[]): PlacedShip | null => {
@@ -67,17 +108,11 @@ export const findShipPosition = (type: ShipType, ships: readonly PlacedShip[]): 
 
   const blocked = getBlockedCells(ships);
 
-  for (let row = 0; row < SIZE; row++) {
-    for (let col = 0; col < SIZE; col++) {
-      for (const direction of placementDirections) {
-        const ship = { id, type, row, col, direction };
-        if (canOccupyCells(ship, blocked)) {
-          return ship;
-        }
-      }
-    }
-  }
-  return null;
+  const placement = getPlacements(type).find(({ cells }) => {
+    return areCellsFree(cells, blocked);
+  });
+
+  return placement ? { id, type, ...placement.position } : null;
 };
 
 const fleetTypes = (Object.keys(SHIP_TYPES) as ShipType[]).flatMap((type) => {
@@ -101,19 +136,10 @@ export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip
 
     const type = fleetTypes[ships.length];
     const id = ships.length + 1;
-    const candidates: PlacedShip[] = [];
     const blocked = getBlockedCells(ships);
-
-    for (let row = 0; row < SIZE; row++) {
-      for (let col = 0; col < SIZE; col++) {
-        for (const direction of placementDirections) {
-          const ship = { id, type, row, col, direction };
-          if (canOccupyCells(ship, blocked)) {
-            candidates.push(ship);
-          }
-        }
-      }
-    }
+    const candidates = getPlacements(type).filter(({ cells }) => {
+      return areCellsFree(cells, blocked);
+    });
 
     while (candidates.length > 0) {
       const index = Math.floor(Math.random() * candidates.length);
@@ -121,7 +147,7 @@ export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip
       candidates[index] = candidates[candidates.length - 1];
       candidates.pop();
 
-      ships.push(candidate);
+      ships.push({ id, type, ...candidate.position });
       if (placeNextShip()) {
         return true;
       }
