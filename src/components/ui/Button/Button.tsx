@@ -3,7 +3,7 @@ import './Button.css';
 
 type Props = ComponentPropsWithoutRef<'button'>;
 
-export function Button({ className = '', type = 'button', ...props }: Props) {
+export const Button = ({ className = '', type = 'button', ...props }: Props) => {
   return (
     <button
       type={type}

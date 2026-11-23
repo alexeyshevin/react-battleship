@@ -35,7 +35,7 @@ export const GameSession = (props: Props) => {
   const canShoot = isStarted && props.mode === 'bot' && firstPlayer === 'player';
   const [message, setMessage] = useState<GameStatusKey>('ready');
 
-  function handleEnemyCellClick(row: number, col: number) {
+  const handleEnemyCellClick = (row: number, col: number) => {
     const cell = enemyBoard[row][col];
 
     if (!canShoot || cell.hit) {
@@ -51,17 +51,20 @@ export const GameSession = (props: Props) => {
     setEnemyBoard(updatedBoard);
   }
 
-  function finishPlacement(board: BoardModel) {
+  const finishPlacement = (board: BoardModel) => {
     setPlayerBoard(board);
     setIsPrepared(true);
   }
 
-  function startGame() {
-    if (!canStart || isStarted) return;
+  const startGame = () => {
+    if (!canStart || isStarted) {
+      return;
+    }
+
     setIsStarted(true);
   }
 
-  function resetGame() {
+  const resetGame = () => {
     setIsStarted(false);
     setIsPrepared(false);
     setFirstPlayer(null);

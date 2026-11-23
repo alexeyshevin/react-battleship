@@ -22,30 +22,50 @@ export const ShipPlacement = (props: Props) => {
   const board = createBoardFromShips(ships);
 
   const addShip = (type: ShipType) => {
-    if (selected) return;
+    if (selected) {
+      return;
+    }
+
     const ship = findShipPosition(type, ships);
     setNoSpace(!ship);
-    if (!ship) return;
+
+    if (!ship) {
+      return;
+    }
+
     setShips([...ships, ship]);
+
     setSelectedId(ship.id);
   };
 
   const getCandidate = (ship: PlacedShip, action: ShipControlAction): PlacedShip => {
-    if (action === 'clockwise') return rotateShip(ship, 1);
-    if (action === 'counterclockwise') return rotateShip(ship, -1);
+    if (action === 'clockwise') {
+      return rotateShip(ship, 1);
+    }
+
+    if (action === 'counterclockwise') {
+      return rotateShip(ship, -1);
+    }
+
     const rowDelta = Number(action === 'down') - Number(action === 'up');
     const colDelta = Number(action === 'right') - Number(action === 'left');
     return { ...ship, row: ship.row + rowDelta, col: ship.col + colDelta };
   };
 
   const moveShip = (candidate: PlacedShip) => {
-    if (!canPositionShip(candidate, ships)) return;
+    if (!canPositionShip(candidate, ships)) {
+      return;
+    }
+
     setShips(ships.map((ship) => ship.id === candidate.id ? candidate : ship));
     setNoSpace(false);
   };
 
   const selectCell = (row: number, col: number) => {
-    if (selected) return;
+    if (selected) {
+      return;
+    }
+
     const ship = ships.find((item) => getShipCells(item)
       .some((cell) => cell.row === row && cell.col === col));
     if (ship) {
@@ -54,7 +74,10 @@ export const ShipPlacement = (props: Props) => {
   };
 
   const confirmShip = () => {
-    if (!selected || !canPositionShip(selected, ships)) return;
+    if (!selected || !canPositionShip(selected, ships)) {
+      return;
+    }
+
     setSelectedId(null);
     setNoSpace(false);
   };
