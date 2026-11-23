@@ -12,6 +12,7 @@
    - Extract additional components into separate files.
    - Helper functions, hooks, and type definitions are allowed in component files when directly related to that component.
 6. Do not use hardcoded values.
+7. Always use curly braces for functions.
 
 ## TypeScript
 

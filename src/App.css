@@ -26,3 +26,38 @@
   justify-content: center;
   margin-top: 12px;
 }
+
+.game:has(.ship-placement) {
+  padding-block: 8px;
+}
+
+.game:has(.ship-placement) > h1 {
+  font-size: 32px;
+  line-height: 1.1;
+  margin: 8px 0;
+}
+
+.game:has(.ship-placement) .game-actions {
+  margin-top: 6px;
+}
+
+.game:has(.ship-placement) .game-actions .button {
+  padding: 4px 12px;
+}
+
+@media (max-height: 700px) {
+  .game:has(.ship-placement) {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  .game:has(.ship-placement) > h1 {
+    font-size: 24px;
+    margin-block: 4px;
+  }
+
+  .game:has(.ship-placement) #game-mode-title {
+    font-size: 18px;
+    margin-block-end: 4px;
+  }
+}

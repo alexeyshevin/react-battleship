@@ -2,8 +2,37 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-block: 24px;
+  gap: 8px;
+  margin-block-start: 12px;
+}
+
+.ship-placement h3 {
+  margin: 0;
+}
+
+.ship-placement > p {
+  max-width: 70ch;
+}
+
+.placement-layout,
+.placement-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.placement-layout {
+  flex-direction: column;
+  width: 100%;
+}
+
+.placement-actions {
+  flex-wrap: wrap;
+}
+
+.ship-placement .button:not(.icon-button) {
+  padding: 4px 12px;
 }
 
 .fleet-list {
@@ -18,16 +47,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-block: 6px;
+  gap: 8px;
+  padding-block: 2px;
   text-align: left;
 }
 
 .placement-field {
+  --board-title-space: 36px;
   position: relative;
-  width: 338px;
+  width: clamp(128px, 100svh - 480px, 338px);
   max-width: 100%;
-  padding-top: 36px;
+  padding-top: var(--board-title-space);
 }
 
 .placement-field .board-panel h2 {
@@ -38,7 +68,7 @@
 
 .placement-controls-layer {
   position: absolute;
-  inset: 36px 0 0;
+  inset: var(--board-title-space) 0 0;
   pointer-events: none;
 }
 
@@ -67,3 +97,42 @@
 .ship-control.right { right: 0; top: 36px; }
 .ship-control.clockwise { right: 0; top: 0; }
 .ship-control.counterclockwise { left: 0; top: 0; }
+
+@media (min-width: 680px) {
+  .placement-layout {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .placement-layout > .button {
+    flex-shrink: 0;
+  }
+
+  .fleet-list {
+    flex: 0 1 360px;
+  }
+
+  .placement-field {
+    width: clamp(128px, 100svh - 300px, 338px);
+  }
+}
+
+@media (max-height: 700px) {
+  .ship-placement {
+    gap: 4px;
+    margin-block-start: 6px;
+  }
+
+  .fleet-list .icon-button {
+    width: 28px;
+    height: 28px;
+  }
+
+  .placement-field {
+    --board-title-space: 24px;
+  }
+
+  .placement-field .board-panel h2 {
+    font-size: 16px;
+  }
+}

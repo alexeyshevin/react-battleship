@@ -39,6 +39,56 @@ export const findShipPosition = (type: ShipType, ships: readonly PlacedShip[]): 
   return null;
 };
 
+const fleetTypes = (Object.keys(SHIP_TYPES) as ShipType[]).flatMap((type) =>
+  Array.from({ length: SHIP_TYPES[type].count }, () => type),
+);
+
+export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip[] => {
+  const previousBoard = createBoardFromShips(previousShips);
+  const ships: PlacedShip[] = [];
+
+  const placeNextShip = (): boolean => {
+    if (ships.length === fleetTypes.length) {
+      return previousShips.length !== ships.length || ships.some((ship) =>
+        getShipCells(ship).some(({ row, col }) => !previousBoard[row][col].ship),
+      );
+    }
+
+    const type = fleetTypes[ships.length];
+    const id = ships.length + 1;
+    const candidates: PlacedShip[] = [];
+
+    for (let row = 0; row < SIZE; row++) {
+      for (let col = 0; col < SIZE; col++) {
+        for (const direction of [0, 1] as const) {
+          const ship = { id, type, row, col, direction };
+          if (canPositionShip(ship, ships)) {
+            candidates.push(ship);
+          }
+        }
+      }
+    }
+
+    while (candidates.length > 0) {
+      const index = Math.floor(Math.random() * candidates.length);
+      const candidate = candidates[index];
+      candidates[index] = candidates[candidates.length - 1];
+      candidates.pop();
+
+      ships.push(candidate);
+      if (placeNextShip()) {
+        return true;
+      }
+      ships.pop();
+    }
+
+    return false;
+  };
+
+  placeNextShip();
+  return ships;
+};
+
 export const rotateShip = (ship: PlacedShip, step: -1 | 1): PlacedShip => ({
   ...ship, direction: ((ship.direction + step + 4) % 4) as Direction,
 });

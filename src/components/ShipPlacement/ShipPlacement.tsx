@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SHIP_TYPES, SIZE } from '../../shared/consts';
-import { canPositionShip, createBoardFromShips, findShipPosition, getShipCells, isFleetComplete, rotateShip } from '../../shared/helpers/shipPlacement';
+import { canPositionShip, createBoardFromShips, findShipPosition, getShipCells, isFleetComplete, randomizeFleet, rotateShip } from '../../shared/helpers/shipPlacement';
 import type { Board as BoardModel, PlacedShip, ShipControlAction, ShipType } from '../../shared/types';
 import { Board } from '../Board/Board';
 import { ShipControlButton } from '../ShipControlButton/ShipControlButton';
@@ -92,6 +92,12 @@ export const ShipPlacement = (props: Props) => {
     setNoSpace(false);
   };
 
+  const handleRandomize = () => {
+    setShips(randomizeFleet(ships));
+    setSelectedId(null);
+    setNoSpace(false);
+  };
+
   const renderShip = (type: ShipType) => {
     const definition = SHIP_TYPES[type];
     const isConfirming = selected?.type === type;
@@ -145,35 +151,34 @@ export const ShipPlacement = (props: Props) => {
     <section className="ship-placement" aria-labelledby="placement-title">
       <h3 id="placement-title">{t('placement.title')}</h3>
       <p>{t('placement.instructions')}</p>
-      <ul className="fleet-list">
-        {shipTypes.map(renderShip)}
-      </ul>
       {noSpace && <p role="status">{t('placement.noSpace')}</p>}
-      <div className="placement-field">
-        <Board
-          title={t('game.playerBoard')}
-          board={board}
-          onCellClick={handleSelectCell}
-          isCellSelected={isCellSelected}
-        />
-        {selected && (
-          <div className="placement-controls-layer">
-            <div className="ship-controls" role="group" aria-label={t('placement.controls')}
-              style={{ left: `clamp(52px, ${(selected.col + 0.5) / SIZE * 100}%, calc(100% - 52px))`,
-                top: `clamp(52px, ${(selected.row + 0.5) / SIZE * 100}%, calc(100% - 52px))` }}>
-              {actions.map(renderControl)}
+      <div className="placement-layout">
+        <ul className="fleet-list">
+          {shipTypes.map(renderShip)}
+        </ul>
+        <Button onClick={handleRandomize}>{t('placement.randomize')}</Button>
+        <div className="placement-field">
+          <Board
+            title={t('game.playerBoard')}
+            board={board}
+            onCellClick={handleSelectCell}
+            isCellSelected={isCellSelected}
+          />
+          {selected && (
+            <div className="placement-controls-layer">
+              <div className="ship-controls" role="group" aria-label={t('placement.controls')}
+                style={{ left: `clamp(52px, ${(selected.col + 0.5) / SIZE * 100}%, calc(100% - 52px))`,
+                  top: `clamp(52px, ${(selected.row + 0.5) / SIZE * 100}%, calc(100% - 52px))` }}>
+                {actions.map(renderControl)}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-      {selected && <Button onClick={handleRemoveSelected}>{t('placement.remove')}</Button>}
-      <Button
-        disabled={!canFinish}
-        onClick={handleReady}
-      >
-        {t('placement.ready')}
-      </Button>
-
+      <div className="placement-actions">
+        {selected && <Button onClick={handleRemoveSelected}>{t('placement.remove')}</Button>}
+        <Button disabled={!canFinish} onClick={handleReady}>{t('placement.ready')}</Button>
+      </div>
     </section>
   );
 };

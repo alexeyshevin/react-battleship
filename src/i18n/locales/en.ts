@@ -23,7 +23,8 @@ export const en = {
   },
   placement: {
     title: 'Place your ships',
-    instructions: 'Add a ship with +, move or rotate it using the surrounding buttons, then confirm with the checkmark in the same row. Select a placed ship on the board to edit it.',
+    instructions: 'Add a ship with +, move or rotate it using the surrounding buttons, then confirm with the checkmark in the same row. Select a placed ship on the board to edit it. Or click "Randomize" to place your ships automatically.',
+    randomize: 'Randomize',
     length: 'Cells: {{count}}',
     remaining: 'Remaining: {{count}}',
     add: 'Add: {{ship}}',
