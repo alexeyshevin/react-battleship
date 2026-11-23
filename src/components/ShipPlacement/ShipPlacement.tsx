@@ -202,7 +202,9 @@ export const ShipPlacement = (props: Props) => {
       </div>
       <div className="placement-actions">
         {selected && <Button onClick={handleRemoveSelected}>{t('placement.remove')}</Button>}
-        <Button disabled={!canFinish} onClick={handleReady}>{t('placement.ready')}</Button>
+        <Button className="placement-ready" disabled={!canFinish} onClick={handleReady}>
+          {t('placement.ready')}
+        </Button>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 :root {
   --text: #08060d;
   --bg: #fff;
+  --control-border-color: #b5b3bb;
   --code-bg: #f4f3ec;
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
@@ -53,7 +54,7 @@
 .draw-roulette {
   border-radius: 5px;
   border-style: solid;
-  border-color: #b5b3bb;
+  border-color: var(--control-border-color);
 }
 
 #root {

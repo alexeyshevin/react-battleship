@@ -42,6 +42,11 @@
   flex-wrap: wrap;
 }
 
+.placement-actions .placement-ready:disabled {
+  color: var(--control-border-color);
+  cursor: not-allowed;
+}
+
 .ship-placement .button:not(.icon-button) {
   padding: 4px 12px;
 }
