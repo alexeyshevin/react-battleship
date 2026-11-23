@@ -46,6 +46,7 @@ export const canPositionShip = (ship: PlacedShip, ships: readonly PlacedShip[]):
   const otherShips = ships.filter((other) => {
     return other.id !== ship.id;
   });
+
   return canOccupyCells(ship, getBlockedCells(otherShips));
 };
 
@@ -53,14 +54,19 @@ export const findShipPosition = (type: ShipType, ships: readonly PlacedShip[]): 
   const placedCount = ships.filter((ship) => {
     return ship.type === type;
   }).length;
+
   if (placedCount >= SHIP_TYPES[type].count) {
     return null;
   }
+
   const shipIds = ships.map((ship) => {
     return ship.id;
   });
+
   const id = Math.max(0, ...shipIds) + 1;
+
   const blocked = getBlockedCells(ships);
+
   for (let row = 0; row < SIZE; row++) {
     for (let col = 0; col < SIZE; col++) {
       for (const direction of placementDirections) {

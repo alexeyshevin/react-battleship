@@ -12,6 +12,7 @@ export const chooseBotNumber = (playerNumber: number): number => {
   const availableNumbers = DRAW_NUMBERS.filter((number) => {
     return number !== playerNumber;
   });
+
   return availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
 };
 

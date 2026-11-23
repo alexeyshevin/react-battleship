@@ -1,5 +1,5 @@
-import { useId, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SHIP_TYPES, SIZE } from '../../shared/consts';
 import {
@@ -132,6 +132,7 @@ export const ShipPlacement = (props: Props) => {
     setShips(ships.filter((ship) => {
       return ship.id !== selectedId;
     }));
+
     setSelectedId(null);
     setNoSpace(false);
   };
@@ -145,9 +146,11 @@ export const ShipPlacement = (props: Props) => {
   const renderShip = (type: ShipType) => {
     const definition = SHIP_TYPES[type];
     const isConfirming = selected?.type === type;
+
     const placedCount = ships.filter((ship) => {
       return ship.type === type;
     }).length;
+
     const remaining = definition.count - placedCount;
     const isAddDisabled = !isConfirming && (remaining === 0 || Boolean(selected));
     const handleAddShip = () => {
