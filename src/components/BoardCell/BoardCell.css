@@ -2,7 +2,7 @@
   width: 100%;
   aspect-ratio: 1;
   padding: 0;
-  border: 1px solid #333;
+  border-width: 1px;
   background: #bde0fe;
   cursor: pointer;
 }

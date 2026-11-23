@@ -31,8 +31,7 @@
   place-items: center;
   width: 80px;
   height: 80px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
+  border-width: 2px;
   font-size: 32px;
 }
 

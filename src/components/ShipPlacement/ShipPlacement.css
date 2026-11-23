@@ -55,9 +55,8 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  background: #fff;
-  color: #173965;
-  border: 1px solid #173965;
+  background: var(--bg);
+  border-width: 1px;
   pointer-events: auto;
 }
 

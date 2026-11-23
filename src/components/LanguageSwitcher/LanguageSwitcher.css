@@ -10,6 +10,5 @@
 .switcher {
     width: 10rem;
     height: 1.75rem;
-    border: 1px solid #db7b7b;
-    border-radius: 5px;
+    border-width: 1px;
 }
