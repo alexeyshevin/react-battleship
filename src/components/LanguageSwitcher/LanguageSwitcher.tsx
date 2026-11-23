@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fallbackLanguage, languages } from '../../i18n/languages';
+import './LanguageSwitcher.css';
 
 type Props = Record<string, never>;
 
@@ -18,11 +19,12 @@ export const LanguageSwitcher = (_props: Props) => {
   };
 
   return (
-    <label>
+    <label className='label'>
       {t('language.label')}{' '}
       <select
         value={i18n.resolvedLanguage ?? fallbackLanguage}
         onChange={handleLanguageChange}
+        className='switcher'
       >
         {languages.map(renderLanguageOption)}
       </select>

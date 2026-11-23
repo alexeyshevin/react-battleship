@@ -1,0 +1,15 @@
+.label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 24px;
+}
+
+.switcher {
+    width: 10rem;
+    height: 1.75rem;
+    border: 1px solid #db7b7b;
+    border-radius: 5px;
+}
