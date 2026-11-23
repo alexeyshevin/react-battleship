@@ -6,6 +6,7 @@ const vectors: Coordinates[] = [
   { row: 0, col: 1 }, { row: 1, col: 0 },
   { row: 0, col: -1 }, { row: -1, col: 0 },
 ];
+const SHIP_CLEARANCE = 1;
 
 export const getShipCells = (ship: PlacedShip): Coordinates[] => {
   const vector = vectors[ship.direction];
@@ -15,12 +16,29 @@ export const getShipCells = (ship: PlacedShip): Coordinates[] => {
   }));
 };
 
+const getBlockedCells = (ships: readonly PlacedShip[]): Set<string> => {
+  const blocked = new Set<string>();
+  for (const { row, col } of ships.flatMap(getShipCells)) {
+    for (let rowOffset = -SHIP_CLEARANCE; rowOffset <= SHIP_CLEARANCE; rowOffset++) {
+      for (let colOffset = -SHIP_CLEARANCE; colOffset <= SHIP_CLEARANCE; colOffset++) {
+        blocked.add(`${row + rowOffset}:${col + colOffset}`);
+      }
+    }
+  }
+  return blocked;
+};
+
+const canOccupyCells = (ship: PlacedShip, blocked: ReadonlySet<string>): boolean => {
+  return getShipCells(ship).every(({ row, col }) => {
+    return row >= 0 && row < SIZE && col >= 0 && col < SIZE && !blocked.has(`${row}:${col}`);
+  });
+};
+
 export const canPositionShip = (ship: PlacedShip, ships: readonly PlacedShip[]): boolean => {
-  const occupied = new Set(ships.filter((other) => other.id !== ship.id)
-    .flatMap(getShipCells).map(({ row, col }) => `${row}:${col}`));
-  return getShipCells(ship).every(({ row, col }) =>
-    row >= 0 && row < SIZE && col >= 0 && col < SIZE && !occupied.has(`${row}:${col}`),
-  );
+  const otherShips = ships.filter((other) => {
+    return other.id !== ship.id;
+  });
+  return canOccupyCells(ship, getBlockedCells(otherShips));
 };
 
 export const findShipPosition = (type: ShipType, ships: readonly PlacedShip[]): PlacedShip | null => {
@@ -28,11 +46,12 @@ export const findShipPosition = (type: ShipType, ships: readonly PlacedShip[]): 
     return null;
   }
   const id = Math.max(0, ...ships.map((ship) => ship.id)) + 1;
+  const blocked = getBlockedCells(ships);
   for (let row = 0; row < SIZE; row++) {
     for (let col = 0; col < SIZE; col++) {
       for (const direction of [0, 1] as const) {
         const ship = { id, type, row, col, direction };
-        if (canPositionShip(ship, ships)) return ship;
+        if (canOccupyCells(ship, blocked)) return ship;
       }
     }
   }
@@ -57,12 +76,13 @@ export const randomizeFleet = (previousShips: readonly PlacedShip[]): PlacedShip
     const type = fleetTypes[ships.length];
     const id = ships.length + 1;
     const candidates: PlacedShip[] = [];
+    const blocked = getBlockedCells(ships);
 
     for (let row = 0; row < SIZE; row++) {
       for (let col = 0; col < SIZE; col++) {
         for (const direction of [0, 1] as const) {
           const ship = { id, type, row, col, direction };
-          if (canPositionShip(ship, ships)) {
+          if (canOccupyCells(ship, blocked)) {
             candidates.push(ship);
           }
         }
@@ -94,6 +114,7 @@ export const rotateShip = (ship: PlacedShip, step: -1 | 1): PlacedShip => ({
 });
 
 export const isFleetComplete = (ships: readonly PlacedShip[]): boolean =>
+  new Set(ships.map((ship) => ship.id)).size === ships.length &&
   Object.entries(SHIP_TYPES).every(([type, definition]) =>
     ships.filter((ship) => ship.type === type).length === definition.count,
   ) && ships.every((ship) => canPositionShip(ship, ships));

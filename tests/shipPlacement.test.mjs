@@ -12,7 +12,7 @@ registerHooks({
   },
 });
 
-const { canPositionShip, createBoardFromShips, findShipPosition, getShipCells, isFleetComplete, rotateShip } =
+const { canPositionShip, createBoardFromShips, findShipPosition, getShipCells, isFleetComplete, randomizeFleet, rotateShip } =
   await import('../src/shared/helpers/shipPlacement.ts');
 const { SHIP_TYPES } = await import('../src/shared/consts.ts');
 
@@ -36,7 +36,37 @@ test('moves and rotations reject all borders and overlapping ships', () => {
   assert.equal(canPositionShip(rotateShip({ ...ship, row: 9 }, 1), []), false);
   assert.equal(canPositionShip(ship, [ship]), true);
   assert.equal(canPositionShip(ship, [{ ...ship, id: 2 }]), false);
-  assert.equal(canPositionShip({ ...ship, row: 4 }, [ship]), true);
+});
+
+test('ships need one empty cell between them, including diagonally', () => {
+  const other = { ...ship, id: 2 };
+  assert.equal(canPositionShip({ ...other, row: 4 }, [ship]), false);
+  assert.equal(canPositionShip({ ...other, col: 6 }, [ship]), false);
+  assert.equal(canPositionShip({ ...other, row: 4, col: 6 }, [ship]), false);
+  assert.equal(canPositionShip({ ...other, row: 5 }, [ship]), true);
+  assert.equal(canPositionShip({ ...other, col: 7 }, [ship]), true);
+
+  const candidate = { ...other, row: 1 };
+  assert.equal(canPositionShip(candidate, [ship, candidate]), true);
+  assert.equal(canPositionShip(rotateShip(candidate, 1), [ship, candidate]), false);
+});
+
+test('randomization produces complete fleets separated on all sides', () => {
+  const previous = randomizeFleet([]);
+  const ships = randomizeFleet(previous);
+  assert.ok(isFleetComplete(previous));
+  assert.ok(isFleetComplete(ships));
+  assert.notDeepEqual(createBoardFromShips(ships), createBoardFromShips(previous));
+
+  for (const [index, ship] of ships.entries()) {
+    for (const other of ships.slice(index + 1)) {
+      for (const cell of getShipCells(ship)) {
+        for (const neighbor of getShipCells(other)) {
+          assert.ok(Math.abs(cell.row - neighbor.row) > 1 || Math.abs(cell.col - neighbor.col) > 1);
+        }
+      }
+    }
+  }
 });
 
 test('fleet limits, removal, readiness and board conversion', () => {
