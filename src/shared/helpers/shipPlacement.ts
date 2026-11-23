@@ -1,5 +1,10 @@
 import { SHIP_TYPES, SIZE } from '../consts';
-import type { Coordinates, Direction, PlacedShip, ShipType } from '../types';
+import type {
+  Coordinates,
+  Direction,
+  PlacedShip,
+  ShipType
+} from '../types';
 import { createEmptyBoard } from './createEmptyBoard';
 
 const vectors: Coordinates[] = [

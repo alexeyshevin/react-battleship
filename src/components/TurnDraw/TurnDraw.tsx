@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { chooseBotNumber, DRAW_DURATION_MS, DRAW_NUMBERS, drawFirstTurn } from '../../shared/helpers/drawFirstTurn';
+import {
+  chooseBotNumber,
+  DRAW_DURATION_MS,
+  DRAW_NUMBERS,
+  drawFirstTurn,
+} from '../../shared/helpers/drawFirstTurn';
 import type { DrawState, Player } from '../../shared/types';
 import { Button } from '../ui/Button/Button';
 import './TurnDraw.css';

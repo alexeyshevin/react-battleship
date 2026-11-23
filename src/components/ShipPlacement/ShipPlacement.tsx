@@ -1,8 +1,21 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SHIP_TYPES, SIZE } from '../../shared/consts';
-import { canPositionShip, createBoardFromShips, findShipPosition, getShipCells, isFleetComplete, randomizeFleet, rotateShip } from '../../shared/helpers/shipPlacement';
-import type { Board as BoardModel, PlacedShip, ShipControlAction, ShipType } from '../../shared/types';
+import {
+  canPositionShip,
+  createBoardFromShips,
+  findShipPosition,
+  getShipCells,
+  isFleetComplete,
+  randomizeFleet,
+  rotateShip,
+} from '../../shared/helpers/shipPlacement';
+import type {
+  Board as BoardModel,
+  PlacedShip,
+  ShipControlAction,
+  ShipType,
+} from '../../shared/types';
 import { Board } from '../Board/Board';
 import { ShipControlButton } from '../ShipControlButton/ShipControlButton';
 import { ShipPlacementButton } from '../ShipPlacementButton/ShipPlacementButton';

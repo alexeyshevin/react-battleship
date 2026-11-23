@@ -5,6 +5,45 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+const maxInlineImportSpecifiers = 3
+
+const multilineNamedImports = {
+  meta: {
+    schema: [],
+    messages: {
+      multiline: `Place each named import on its own line when importing more than ${maxInlineImportSpecifiers} names.`,
+    },
+  },
+  create: (context) => {
+    const { sourceCode } = context
+
+    return {
+      ImportDeclaration: (node) => {
+        const specifiers = node.specifiers.filter((specifier) => {
+          return specifier.type === 'ImportSpecifier'
+        })
+
+        if (specifiers.length <= maxInlineImportSpecifiers) {
+          return
+        }
+
+        const openingBrace = sourceCode.getTokenBefore(specifiers[0])
+        const closingBrace = sourceCode.getTokenAfter(specifiers.at(-1), {
+          filter: (token) => { return token.value === '}' },
+        })
+        const entries = [openingBrace, ...specifiers, closingBrace]
+        const sharesLine = entries.slice(1).some((entry, index) => {
+          return entry.loc.start.line === entries[index].loc.end.line
+        })
+
+        if (sharesLine) {
+          context.report({ node, messageId: 'multiline' })
+        }
+      },
+    }
+  },
+}
+
 export default defineConfig([
   globalIgnores(['dist']),
   {
@@ -18,7 +57,10 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
-       rules: {
+    plugins: {
+      local: { rules: { 'multiline-named-imports': multilineNamedImports } },
+    },
+    rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
@@ -26,6 +68,8 @@ export default defineConfig([
       ],
 
       // Стиль кода
+      'local/multiline-named-imports': 'warn',
+      'max-len': ['warn', { code: 140 }],
       'semi': ['error', 'always'],
       'quotes': ['error', 'single', { avoidEscape: true }],
       'indent': ['error', 2, { SwitchCase: 1 }],
@@ -50,6 +94,12 @@ export default defineConfig([
         caughtErrorsIgnorePattern: '^_',
       }],
       '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  {
+    files: ['src/i18n/locales/**/*.{ts,tsx}'],
+    rules: {
+      'max-len': 'off',
     },
   },
 ])
