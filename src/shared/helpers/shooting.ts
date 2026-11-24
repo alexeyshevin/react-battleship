@@ -13,15 +13,23 @@ export const chooseBotTarget = (board: Board): Coordinates | undefined => {
   return targets[Math.floor(Math.random() * targets.length)];
 };
 
-export const resolveShot = (board: Board, target: Coordinates, shooter: Player) => {
-  const { row, col } = target;
+export const recordShot = (board: Board, { row, col }: Coordinates, ship = board[row][col].ship) => {
   const cell = board[row][col];
   if (cell.hit) {
+    return board;
+  }
+
+  const updatedRow = board[row].with(col, { ...cell, ship, hit: true });
+  return board.with(row, updatedRow);
+};
+
+export const resolveShot = (board: Board, target: Coordinates, shooter: Player) => {
+  const cell = board[target.row][target.col];
+  const updatedBoard = recordShot(board, target);
+  if (updatedBoard === board) {
     return;
   }
 
-  const updatedRow = board[row].with(col, { ...cell, hit: true });
-  const updatedBoard = board.with(row, updatedRow);
   const fleetDestroyed = cell.ship && !updatedBoard.some((cells) => {
     return cells.some((square) => {
       return square.ship && !square.hit;

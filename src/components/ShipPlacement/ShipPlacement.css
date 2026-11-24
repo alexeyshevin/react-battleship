@@ -84,7 +84,8 @@
 
 .placement-controls-layer {
   position: absolute;
-  inset: var(--board-title-space) 0 0;
+  --axis-inset: calc(var(--board-axis-size) + var(--board-gap));
+  inset: calc(var(--board-title-space) + var(--axis-inset)) 0 0 var(--axis-inset);
   pointer-events: none;
 }
 

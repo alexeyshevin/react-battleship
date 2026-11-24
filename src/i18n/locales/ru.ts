@@ -47,6 +47,9 @@ export const ru = {
   game: {
     start: 'Начать игру',
     reset: 'Сбросить игру',
+    journalResult: 'Выбери результат своего выстрела и отметь клетку в журнале',
+    journalHit: 'Попадание',
+    journalMiss: 'Промах',
     journalBoard: 'Боевой журнал',
     playerBoard: 'Моё поле',
     enemyBoard: 'Поле противника',
@@ -63,6 +66,7 @@ export const ru = {
     },
   },
   cell: {
+    columns: 'АБВГДЕЖЗИК',
     coordinates: 'Строка {{row}}, столбец {{col}}',
     label: '{{coordinates}}: {{description}}',
     hit: 'попадание',

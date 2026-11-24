@@ -53,6 +53,9 @@ export const en = {
   game: {
     start: 'Start game',
     reset: 'Reset game',
+    journalResult: 'Choose your shot result, then mark the cell in the battle log',
+    journalHit: 'Hit',
+    journalMiss: 'Miss',
     journalBoard: 'Battle log',
     playerBoard: 'My board',
     enemyBoard: 'Opponent’s board',
@@ -69,6 +72,7 @@ export const en = {
     },
   },
   cell: {
+    columns: 'ABCDEFGHIJ',
     coordinates: 'Row {{row}}, column {{col}}',
     label: '{{coordinates}}: {{description}}',
     hit: 'hit',

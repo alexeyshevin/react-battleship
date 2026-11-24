@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { ru } from '../../i18n/locales/ru';
 
 import { createBoardWithShips } from '../../shared/helpers/createBoardWithShips';
-import { chooseBotTarget, resolveShot } from '../../shared/helpers/shooting';
+import { chooseBotTarget, recordShot, resolveShot } from '../../shared/helpers/shooting';
 import { createEmptyBoard } from '../../shared/helpers/createEmptyBoard';
 import type { Board as BoardModel, GameMode, Player } from '../../shared/types';
 import { Board } from '../Board/Board';
@@ -42,6 +42,8 @@ export const GameSession = (props: Props) => {
     setFirstPlayer(player);
   }, []);
   const canStart = isPrepared && (props.mode === 'journal' || firstPlayer !== null);
+  const isJournalActive = isStarted && props.mode === 'journal';
+  const [journalResult, setJournalResult] = useState<'hit' | 'miss'>('miss');
   const canShoot = currentPlayer === 'player';
   const [message, setMessage] = useState<GameStatusKey>('ready');
 
@@ -81,6 +83,28 @@ export const GameSession = (props: Props) => {
     }
   };
 
+  const handleSelectHit = () => {
+    setJournalResult('hit');
+  };
+
+  const handleSelectMiss = () => {
+    setJournalResult('miss');
+  };
+
+  const handleIncomingShot = (row: number, col: number) => {
+    setPlayerBoard((board) => {
+      return recordShot(board, { row, col });
+    });
+  };
+
+  const handleJournalShot = (row: number, col: number) => {
+    setEnemyBoard((board) => {
+      return recordShot(board, { row, col }, journalResult === 'hit');
+    });
+  };
+
+  const opponentCellClick = isJournalActive ? handleJournalShot : canShoot ? handleEnemyCellClick : undefined;
+
   const handleFinishPlacement = (board: BoardModel) => {
     setPlayerBoard(board);
     setIsPrepared(true);
@@ -102,6 +126,7 @@ export const GameSession = (props: Props) => {
     setIsStarted(false);
     setIsPrepared(false);
     setFirstPlayer(null);
+    setJournalResult('miss');
     setCurrentPlayer(null);
     setDrawVersion((version) => {
       return version + 1;
@@ -137,16 +162,30 @@ export const GameSession = (props: Props) => {
         <TurnDraw key={drawVersion} onComplete={handleDrawComplete} />
       )}
       {!isPrepared && <ShipPlacement key={drawVersion} onReady={handleFinishPlacement} />}
+      {isJournalActive && (
+        <fieldset className="journal-result">
+          <legend>{t('game.journalResult')}</legend>
+          <label>
+            <input type="radio" name={titleId} checked={journalResult === 'miss'} onChange={handleSelectMiss} />
+            {t('game.journalMiss')}
+          </label>
+          <label>
+            <input type="radio" name={titleId} checked={journalResult === 'hit'} onChange={handleSelectHit} />
+            {t('game.journalHit')}
+          </label>
+        </fieldset>
+      )}
       {isPrepared && <div className="boards">
         <Board
           title={t('game.playerBoard')}
           board={playerBoard}
+          onCellClick={isJournalActive ? handleIncomingShot : undefined}
         />
         <Board
           title={t(props.mode === 'bot' ? 'game.enemyBoard' : 'game.journalBoard')}
           board={enemyBoard}
           concealShips
-          onCellClick={canShoot ? handleEnemyCellClick : undefined}
+          onCellClick={opponentCellClick}
         />
       </div>}
     </section>

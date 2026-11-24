@@ -1,3 +1,9 @@
+.board-panel,
+.placement-field {
+  --board-axis-size: 1.25rem;
+  --board-gap: 2px;
+}
+
 .board-panel {
   min-width: 0;
   width: 338px;
@@ -6,6 +12,15 @@
 
 .board {
   display: grid;
-  grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
-  gap: 2px;
+  grid-template-rows: var(--board-axis-size);
+  grid-template-columns: var(--board-axis-size) repeat(var(--board-size), minmax(0, 1fr));
+  gap: var(--board-gap);
+}
+
+.board-coordinate {
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }

@@ -61,3 +61,13 @@
     margin-block-end: 4px;
   }
 }
+
+.journal-result {
+  width: fit-content;
+  max-width: 100%;
+  margin: 16px auto 0;
+}
+
+.journal-result label + label {
+  margin-inline-start: 16px;
+}
