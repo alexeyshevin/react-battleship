@@ -60,7 +60,12 @@ export const en = {
       ready: 'Fire at the opponent’s board!',
       newGame: 'New game. Fire at the opponent’s board!',
       hit: 'Hit!',
-      miss: 'Miss!',
+      miss: 'Miss! The computer goes next.',
+      botTurn: 'Computer’s turn.',
+      botHit: 'The computer hit a ship and fires again.',
+      botMiss: 'The computer missed. Your turn!',
+      playerWins: 'You win!',
+      botWins: 'The computer wins.',
     },
   },
   cell: {

@@ -1,8 +1,14 @@
-import { useCallback, useId, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ru } from '../../i18n/locales/ru';
 
 import { createBoardWithShips } from '../../shared/helpers/createBoardWithShips';
+import { chooseBotTarget, resolveShot } from '../../shared/helpers/shooting';
 import { createEmptyBoard } from '../../shared/helpers/createEmptyBoard';
 import type { Board as BoardModel, GameMode, Player } from '../../shared/types';
 import { Board } from '../Board/Board';
@@ -10,6 +16,8 @@ import { GameStatus } from '../GameStatus/GameStatus';
 import { ShipPlacement } from '../ShipPlacement/ShipPlacement';
 import { TurnDraw } from '../TurnDraw/TurnDraw';
 import { Button } from '../ui/Button/Button';
+
+const BOT_SHOT_DELAY_MS = 650;
 
 type GameStatusKey = keyof typeof ru.game.status;
 
@@ -28,30 +36,49 @@ export const GameSession = (props: Props) => {
   const [isPrepared, setIsPrepared] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [firstPlayer, setFirstPlayer] = useState<Player | null>(null);
+  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [drawVersion, setDrawVersion] = useState(0);
   const handleDrawComplete = useCallback((player: Player) => {
     setFirstPlayer(player);
   }, []);
   const canStart = isPrepared && (props.mode === 'journal' || firstPlayer !== null);
-  const canShoot = isStarted && props.mode === 'bot' && firstPlayer === 'player';
+  const canShoot = currentPlayer === 'player';
   const [message, setMessage] = useState<GameStatusKey>('ready');
 
-  const handleEnemyCellClick = (row: number, col: number) => {
-    const cell = enemyBoard[row][col];
-
-    if (!canShoot || cell.hit) {
+  useEffect(() => {
+    if (currentPlayer !== 'bot') {
       return;
     }
 
-    const updatedBoard = enemyBoard.map((boardRow) => {
-      return boardRow.map((boardCell) => {
-        return { ...boardCell };
-      });
-    });
+    const handleBotShot = () => {
+      const target = chooseBotTarget(playerBoard);
+      if (!target) {
+        return;
+      }
+      const shot = resolveShot(playerBoard, target, 'bot');
+      if (shot) {
+        setPlayerBoard(shot.board);
+        setCurrentPlayer(shot.nextPlayer);
+        setMessage(shot.nextPlayer === null ? 'botWins' : shot.hit ? 'botHit' : 'botMiss');
+      }
+    };
 
-    updatedBoard[row][col].hit = true;
-    setMessage(cell.ship ? 'hit' : 'miss');
-    setEnemyBoard(updatedBoard);
+    const timer = window.setTimeout(handleBotShot, BOT_SHOT_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [currentPlayer, playerBoard]);
+
+  const handleEnemyCellClick = (row: number, col: number) => {
+    if (!canShoot) {
+      return;
+    }
+    const shot = resolveShot(enemyBoard, { row, col }, 'player');
+    if (shot) {
+      setEnemyBoard(shot.board);
+      setCurrentPlayer(shot.nextPlayer);
+      setMessage(shot.nextPlayer === null ? 'playerWins' : shot.hit ? 'hit' : 'miss');
+    }
   };
 
   const handleFinishPlacement = (board: BoardModel) => {
@@ -64,6 +91,10 @@ export const GameSession = (props: Props) => {
       return;
     }
 
+    setCurrentPlayer(firstPlayer);
+    if (firstPlayer === 'bot') {
+      setMessage('botTurn');
+    }
     setIsStarted(true);
   };
 
@@ -71,6 +102,7 @@ export const GameSession = (props: Props) => {
     setIsStarted(false);
     setIsPrepared(false);
     setFirstPlayer(null);
+    setCurrentPlayer(null);
     setDrawVersion((version) => {
       return version + 1;
     });
@@ -82,7 +114,7 @@ export const GameSession = (props: Props) => {
   return (
     <section aria-labelledby={titleId}>
       <h2 id={titleId} className="game-mode-title">{t(`modes.${props.mode}.title`)}</h2>
-      {canShoot && <GameStatus message={t(`game.status.${message}`)} />}
+      {isStarted && props.mode === 'bot' && <GameStatus message={t(`game.status.${message}`)} />}
       <p>{t(`modes.${props.mode}.description`)}</p>
       <div className="game-actions">
         <Button
