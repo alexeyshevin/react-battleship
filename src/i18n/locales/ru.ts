@@ -53,6 +53,10 @@ export const ru = {
     journalBoard: 'Боевой журнал',
     playerBoard: 'Моё поле',
     enemyBoard: 'Поле противника',
+    result: {
+      enemySunk: 'Все корабли противника потоплены.',
+      fleetLost: 'Противник потопил все твои корабли.',
+    },
     status: {
       ready: 'Стреляй по полю противника!',
       newGame: 'Новая игра. Стреляй по полю противника!',
@@ -61,8 +65,8 @@ export const ru = {
       botTurn: 'Ход компьютера.',
       botHit: 'Компьютер попал и стреляет ещё раз.',
       botMiss: 'Компьютер промахнулся. Твой ход!',
-      playerWins: 'Ты победил!',
-      botWins: 'Компьютер победил.',
+      playerWins: 'Победа!',
+      opponentWins: 'Поражение',
     },
   },
   cell: {

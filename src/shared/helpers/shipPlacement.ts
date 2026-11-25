@@ -19,6 +19,7 @@ type Placement = { position: Position; cells: Coordinates[] };
 
 const getCells = (ship: Position, length: number): Coordinates[] => {
   const vector = vectors[ship.direction];
+
   return Array.from({ length }, (_, index) => {
     return {
       row: ship.row + vector.row * index,

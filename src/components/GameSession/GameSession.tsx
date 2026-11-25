@@ -8,10 +8,16 @@ import { useTranslation } from 'react-i18next';
 import type { ru } from '../../i18n/locales/ru';
 
 import { createBoardWithShips } from '../../shared/helpers/createBoardWithShips';
-import { chooseBotTarget, recordShot, resolveShot } from '../../shared/helpers/shooting';
+import {
+  chooseBotTarget,
+  isJournalFleetDestroyed,
+  recordShot,
+  resolveShot,
+} from '../../shared/helpers/shooting';
 import { createEmptyBoard } from '../../shared/helpers/createEmptyBoard';
 import type { Board as BoardModel, GameMode, Player } from '../../shared/types';
 import { Board } from '../Board/Board';
+import { GameResultDialog } from '../GameResultDialog/GameResultDialog';
 import { GameStatus } from '../GameStatus/GameStatus';
 import { ShipPlacement } from '../ShipPlacement/ShipPlacement';
 import { TurnDraw } from '../TurnDraw/TurnDraw';
@@ -42,10 +48,11 @@ export const GameSession = (props: Props) => {
     setFirstPlayer(player);
   }, []);
   const canStart = isPrepared && (props.mode === 'journal' || firstPlayer !== null);
-  const isJournalActive = isStarted && props.mode === 'journal';
   const [journalResult, setJournalResult] = useState<'hit' | 'miss'>('miss');
-  const canShoot = currentPlayer === 'player';
   const [message, setMessage] = useState<GameStatusKey>('ready');
+  const isFinished = message === 'playerWins' || message === 'opponentWins';
+  const isJournalActive = isStarted && props.mode === 'journal' && !isFinished;
+  const canShoot = currentPlayer === 'player' && !isFinished;
 
   useEffect(() => {
     if (currentPlayer !== 'bot') {
@@ -61,7 +68,7 @@ export const GameSession = (props: Props) => {
       if (shot) {
         setPlayerBoard(shot.board);
         setCurrentPlayer(shot.nextPlayer);
-        setMessage(shot.nextPlayer === null ? 'botWins' : shot.hit ? 'botHit' : 'botMiss');
+        setMessage(shot.nextPlayer === null ? 'opponentWins' : shot.hit ? 'botHit' : 'botMiss');
       }
     };
 
@@ -92,15 +99,21 @@ export const GameSession = (props: Props) => {
   };
 
   const handleIncomingShot = (row: number, col: number) => {
-    setPlayerBoard((board) => {
-      return recordShot(board, { row, col });
-    });
+    const shot = resolveShot(playerBoard, { row, col }, 'bot');
+    if (shot) {
+      setPlayerBoard(shot.board);
+      if (shot.nextPlayer === null) {
+        setMessage('opponentWins');
+      }
+    }
   };
 
   const handleJournalShot = (row: number, col: number) => {
-    setEnemyBoard((board) => {
-      return recordShot(board, { row, col }, journalResult === 'hit');
-    });
+    const board = recordShot(enemyBoard, { row, col }, journalResult === 'hit');
+    setEnemyBoard(board);
+    if (board !== enemyBoard && isJournalFleetDestroyed(board)) {
+      setMessage('playerWins');
+    }
   };
 
   const opponentCellClick = isJournalActive ? handleJournalShot : canShoot ? handleEnemyCellClick : undefined;
@@ -139,7 +152,8 @@ export const GameSession = (props: Props) => {
   return (
     <section aria-labelledby={titleId}>
       <h2 id={titleId} className="game-mode-title">{t(`modes.${props.mode}.title`)}</h2>
-      {isStarted && props.mode === 'bot' && <GameStatus message={t(`game.status.${message}`)} />}
+      {isFinished && <GameResultDialog playerWon={message === 'playerWins'} onBack={props.onBack} />}
+      {isStarted && !isFinished && props.mode === 'bot' && <GameStatus message={t(`game.status.${message}`)} />}
       <p>{t(`modes.${props.mode}.description`)}</p>
       <div className="game-actions">
         <Button

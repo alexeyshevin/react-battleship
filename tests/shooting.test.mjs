@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { chooseBotTarget, recordShot, resolveShot } from '../src/shared/helpers/shooting.ts';
+import { SHIP_TYPES } from '../src/shared/consts.ts';
+import { chooseBotTarget, isJournalFleetDestroyed, recordShot, resolveShot } from '../src/shared/helpers/shooting.ts';
 
 for (const shooter of ['bot', 'player']) {
   test(`${shooter} keeps the turn on a hit and passes it on a miss`, () => {
@@ -36,4 +37,18 @@ test('journal records incoming shots against the fleet and outgoing shots as rep
   assert.deepEqual(log[0], [{ ship: true, hit: true }, { ship: false, hit: true }]);
   assert.equal(recordShot(log, first, false), log);
   assert.equal(water.hit, false);
+});
+
+test('journal victory requires a distinct hit for every enemy fleet cell', () => {
+  const fleet = Object.values(SHIP_TYPES).flatMap((ship) => {
+    return Array.from({ length: ship.length * ship.count }, () => {
+      return { ship: true, hit: true };
+    });
+  });
+  const lastTarget = { row: 0, col: fleet.length - 1 };
+  fleet[lastTarget.col] = { ship: false, hit: false };
+  const log = [fleet.concat({ ship: false, hit: true })];
+  assert.equal(isJournalFleetDestroyed(log), false);
+  assert.equal(isJournalFleetDestroyed(recordShot(log, { row: 0, col: 0 }, true)), false);
+  assert.equal(isJournalFleetDestroyed(recordShot(log, lastTarget, true)), true);
 });

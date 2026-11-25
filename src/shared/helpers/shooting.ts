@@ -1,4 +1,16 @@
+import { SHIP_TYPES } from '../consts.ts';
 import type { Board, Coordinates, Player } from '../types';
+
+const fleetCellCount = Object.values(SHIP_TYPES).reduce((total, ship) => {
+  return total + ship.length * ship.count;
+}, 0);
+
+export const isJournalFleetDestroyed = (board: Board) => {
+  const hits = board.flat().filter((cell) => {
+    return cell.ship && cell.hit;
+  });
+  return hits.length === fleetCellCount;
+};
 
 export const chooseBotTarget = (board: Board): Coordinates | undefined => {
   const targets: Coordinates[] = [];

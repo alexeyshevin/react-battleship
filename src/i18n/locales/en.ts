@@ -59,6 +59,10 @@ export const en = {
     journalBoard: 'Battle log',
     playerBoard: 'My board',
     enemyBoard: 'Opponent’s board',
+    result: {
+      enemySunk: 'You sank the entire enemy fleet.',
+      fleetLost: 'Your opponent sank your entire fleet.',
+    },
     status: {
       ready: 'Fire at the opponent’s board!',
       newGame: 'New game. Fire at the opponent’s board!',
@@ -67,8 +71,8 @@ export const en = {
       botTurn: 'Computer’s turn.',
       botHit: 'The computer hit a ship and fires again.',
       botMiss: 'The computer missed. Your turn!',
-      playerWins: 'You win!',
-      botWins: 'The computer wins.',
+      playerWins: 'Victory!',
+      opponentWins: 'Defeat',
     },
   },
   cell: {
