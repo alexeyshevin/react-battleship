@@ -5,6 +5,7 @@ import './GameResultDialog.css';
 
 type Props = {
   playerWon: boolean;
+  onUndoEntry?: () => void;
   onBack: () => void;
 };
 
@@ -27,7 +28,10 @@ export const GameResultDialog = (props: Props) => {
       aria-describedby={descriptionId} onCancel={props.onBack}>
       <h2 id={titleId}>{t(props.playerWon ? 'game.status.playerWins' : 'game.status.opponentWins')}</h2>
       <p id={descriptionId}>{t(props.playerWon ? 'game.result.enemySunk' : 'game.result.fleetLost')}</p>
-      <Button onClick={props.onBack}>{t('modes.back')}</Button>
+      <div className="game-actions">
+        {props.onUndoEntry && <Button onClick={props.onUndoEntry}>{t('game.undoEntry')}</Button>}
+        <Button onClick={props.onBack}>{t('modes.back')}</Button>
+      </div>
     </dialog>
   );
 };

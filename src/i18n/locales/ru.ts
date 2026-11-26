@@ -47,6 +47,7 @@ export const ru = {
   game: {
     start: 'Начать игру',
     reset: 'Сбросить игру',
+    undoEntry: 'Отменить последнюю запись',
     journalResult: 'Выбери результат своего выстрела и отметь клетку в журнале',
     journalHit: 'Попадание',
     journalMiss: 'Промах',

@@ -27,6 +27,12 @@ const BOT_SHOT_DELAY_MS = 650;
 
 type GameStatusKey = keyof typeof ru.game.status;
 
+type JournalSnapshot = {
+  playerBoard: BoardModel;
+  enemyBoard: BoardModel;
+  message: GameStatusKey;
+};
+
 type Props = {
   mode: GameMode;
   onBack: () => void;
@@ -49,6 +55,7 @@ export const GameSession = (props: Props) => {
   }, []);
   const canStart = isPrepared && (props.mode === 'journal' || firstPlayer !== null);
   const [journalResult, setJournalResult] = useState<'hit' | 'miss'>('miss');
+  const [beforeLastEntry, setBeforeLastEntry] = useState<JournalSnapshot | null>(null);
   const [message, setMessage] = useState<GameStatusKey>('ready');
   const isFinished = message === 'playerWins' || message === 'opponentWins';
   const isJournalActive = isStarted && props.mode === 'journal' && !isFinished;
@@ -98,9 +105,25 @@ export const GameSession = (props: Props) => {
     setJournalResult('miss');
   };
 
+  const rememberJournalState = () => {
+    setBeforeLastEntry({ playerBoard, enemyBoard, message });
+  };
+
+  const handleUndoEntry = () => {
+    if (!beforeLastEntry) {
+      return;
+    }
+
+    setPlayerBoard(beforeLastEntry.playerBoard);
+    setEnemyBoard(beforeLastEntry.enemyBoard);
+    setMessage(beforeLastEntry.message);
+    setBeforeLastEntry(null);
+  };
+
   const handleIncomingShot = (row: number, col: number) => {
     const shot = resolveShot(playerBoard, { row, col }, 'bot');
     if (shot) {
+      rememberJournalState();
       setPlayerBoard(shot.board);
       if (shot.nextPlayer === null) {
         setMessage('opponentWins');
@@ -110,8 +133,13 @@ export const GameSession = (props: Props) => {
 
   const handleJournalShot = (row: number, col: number) => {
     const board = recordShot(enemyBoard, { row, col }, journalResult === 'hit');
+    if (board === enemyBoard) {
+      return;
+    }
+
+    rememberJournalState();
     setEnemyBoard(board);
-    if (board !== enemyBoard && isJournalFleetDestroyed(board)) {
+    if (isJournalFleetDestroyed(board)) {
       setMessage('playerWins');
     }
   };
@@ -136,6 +164,7 @@ export const GameSession = (props: Props) => {
   };
 
   const handleResetGame = () => {
+    setBeforeLastEntry(null);
     setIsStarted(false);
     setIsPrepared(false);
     setFirstPlayer(null);
@@ -152,10 +181,21 @@ export const GameSession = (props: Props) => {
   return (
     <section aria-labelledby={titleId}>
       <h2 id={titleId} className="game-mode-title">{t(`modes.${props.mode}.title`)}</h2>
-      {isFinished && <GameResultDialog playerWon={message === 'playerWins'} onBack={props.onBack} />}
+      {isFinished && (
+        <GameResultDialog
+          playerWon={message === 'playerWins'}
+          onBack={props.onBack}
+          onUndoEntry={beforeLastEntry ? handleUndoEntry : undefined}
+        />
+      )}
       {isStarted && !isFinished && props.mode === 'bot' && <GameStatus message={t(`game.status.${message}`)} />}
       <p>{t(`modes.${props.mode}.description`)}</p>
       <div className="game-actions">
+        {isJournalActive && (
+          <Button disabled={!beforeLastEntry} onClick={handleUndoEntry}>
+            {t('game.undoEntry')}
+          </Button>
+        )}
         <Button
           onClick={handleResetGame}
         >
