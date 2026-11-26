@@ -77,8 +77,6 @@ export const en = {
     },
   },
   cell: {
-    columns: 'ABCDEFGHIJ',
-    coordinates: 'Row {{row}}, column {{col}}',
     label: '{{coordinates}}: {{description}}',
     hit: 'hit',
     miss: 'miss',

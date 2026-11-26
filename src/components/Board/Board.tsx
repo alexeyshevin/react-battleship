@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { Fragment, useId } from 'react';
-import { useTranslation } from 'react-i18next';
+import { BOARD_COLUMNS } from '../../shared/consts';
 import type { BoardView, Cell } from '../../shared/types';
 import { BoardCell } from '../BoardCell/BoardCell';
 import './Board.css';
@@ -15,15 +15,13 @@ type Props = {
 
 export const Board = (props: Props) => {
   const titleId = useId();
-  const { t } = useTranslation();
-
-  const columnLabels = Array.from(t('cell.columns'));
 
   const renderColumnLabel = (letter: string) => {
     return <span key={letter} className="board-coordinate" aria-hidden="true">{letter}</span>;
   };
 
   const renderRow = (row: BoardView[number], rowIndex: number) => {
+    const rowNumber = rowIndex + 1;
     const renderCell = (cell: Readonly<Cell>, colIndex: number) => {
       const handleCellClick = () => {
         props.onCellClick?.(rowIndex, colIndex);
@@ -35,7 +33,7 @@ export const Board = (props: Props) => {
           cell={cell}
           selected={props.isCellSelected?.(rowIndex, colIndex)}
           concealShip={props.concealShips}
-          label={t('cell.coordinates', { row: rowIndex + 1, col: columnLabels[colIndex] })}
+          label={`${BOARD_COLUMNS[colIndex]}${rowNumber}`}
           onClick={props.onCellClick ? handleCellClick : undefined}
         />
       );
@@ -43,7 +41,7 @@ export const Board = (props: Props) => {
 
     return (
       <Fragment key={rowIndex}>
-        <span className="board-coordinate" aria-hidden="true">{rowIndex + 1}</span>
+        <span className="board-coordinate" aria-hidden="true">{rowNumber}</span>
         {row.map(renderCell)}
       </Fragment>
     );
@@ -58,7 +56,7 @@ export const Board = (props: Props) => {
       <h2 id={titleId}>{props.title}</h2>
       <div className="board" style={boardStyle}>
         <span aria-hidden="true" />
-        {columnLabels.slice(0, props.board.length).map(renderColumnLabel)}
+        {BOARD_COLUMNS.slice(0, props.board.length).map(renderColumnLabel)}
         {props.board.map(renderRow)}
       </div>
     </section>

@@ -71,8 +71,6 @@ export const ru = {
     },
   },
   cell: {
-    columns: 'АБВГДЕЖЗИК',
-    coordinates: 'Строка {{row}}, столбец {{col}}',
     label: '{{coordinates}}: {{description}}',
     hit: 'попадание',
     miss: 'промах',

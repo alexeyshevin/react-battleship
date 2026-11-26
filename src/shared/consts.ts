@@ -1,4 +1,5 @@
-export const SIZE = 10;
+export const BOARD_COLUMNS = Array.from('ABCDEFGHIJ');
+export const SIZE = BOARD_COLUMNS.length;
 
 export const SHIP_TYPES = {
   carrier: { length: 5, count: 1 },
