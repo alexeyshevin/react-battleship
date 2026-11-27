@@ -3,17 +3,13 @@ import {
   useEffect,
   useId,
   useState,
+  useReducer,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ru } from '../../i18n/locales/ru';
+import { createGameState, gameReducer } from '../../shared/helpers/gameSession';
 
 import { createBoardWithShips } from '../../shared/helpers/createBoardWithShips';
-import {
-  chooseBotTarget,
-  isJournalFleetDestroyed,
-  recordShot,
-  resolveShot,
-} from '../../shared/helpers/shooting';
+import { chooseBotTarget } from '../../shared/helpers/shooting';
 import { createEmptyBoard } from '../../shared/helpers/createEmptyBoard';
 import type { Board as BoardModel, GameMode, Player } from '../../shared/types';
 import { Board } from '../Board/Board';
@@ -25,12 +21,15 @@ import { Button } from '../ui/Button/Button';
 
 const BOT_SHOT_DELAY_MS = 650;
 
-type GameStatusKey = keyof typeof ru.game.status;
+const createBoards = (mode: GameMode) => {
+  return {
+    playerBoard: createEmptyBoard(),
+    enemyBoard: mode === 'bot' ? createBoardWithShips() : createEmptyBoard(),
+  };
+};
 
-type JournalSnapshot = {
-  playerBoard: BoardModel;
-  enemyBoard: BoardModel;
-  message: GameStatusKey;
+const initializeGame = (mode: GameMode) => {
+  return createGameState(mode, createBoards(mode));
 };
 
 type Props = {
@@ -41,154 +40,76 @@ type Props = {
 export const GameSession = (props: Props) => {
   const titleId = useId();
   const { t } = useTranslation();
-  const [playerBoard, setPlayerBoard] = useState(createEmptyBoard);
-  const [enemyBoard, setEnemyBoard] = useState(() => {
-    return props.mode === 'bot' ? createBoardWithShips() : createEmptyBoard();
-  });
-  const [isPrepared, setIsPrepared] = useState(false);
-  const [isStarted, setIsStarted] = useState(false);
-  const [firstPlayer, setFirstPlayer] = useState<Player | null>(null);
-  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
-  const [drawVersion, setDrawVersion] = useState(0);
-  const handleDrawComplete = useCallback((player: Player) => {
-    setFirstPlayer(player);
-  }, []);
-  const canStart = isPrepared && (props.mode === 'journal' || firstPlayer !== null);
+  const [game, dispatch] = useReducer(gameReducer, props.mode, initializeGame);
   const [journalResult, setJournalResult] = useState<'hit' | 'miss'>('miss');
-  const [beforeLastEntry, setBeforeLastEntry] = useState<JournalSnapshot | null>(null);
-  const [message, setMessage] = useState<GameStatusKey>('ready');
-  const isFinished = message === 'playerWins' || message === 'opponentWins';
-  const isJournalActive = isStarted && props.mode === 'journal' && !isFinished;
-  const canShoot = currentPlayer === 'player' && !isFinished;
+  const { phase, playerBoard, enemyBoard, beforeLastEntry } = game;
+  const isJournalActive = phase.kind === 'journal';
+  const canShoot = phase.kind === 'battle' && phase.currentPlayer === 'player';
+  const isBotTurn = phase.kind === 'battle' && phase.currentPlayer === 'bot';
 
   useEffect(() => {
-    if (currentPlayer !== 'bot') {
+    if (!isBotTurn) {
       return;
     }
-
     const handleBotShot = () => {
       const target = chooseBotTarget(playerBoard);
-      if (!target) {
-        return;
-      }
-      const shot = resolveShot(playerBoard, target, 'bot');
-      if (shot) {
-        setPlayerBoard(shot.board);
-        setCurrentPlayer(shot.nextPlayer);
-        setMessage(shot.nextPlayer === null ? 'opponentWins' : shot.hit ? 'botHit' : 'botMiss');
+      if (target) {
+        dispatch({ type: 'shoot', shooter: 'bot', target });
       }
     };
-
     const timer = window.setTimeout(handleBotShot, BOT_SHOT_DELAY_MS);
     return () => {
       window.clearTimeout(timer);
     };
-  }, [currentPlayer, playerBoard]);
+  }, [isBotTurn, playerBoard]);
+
+  const handleDrawComplete = useCallback((firstPlayer: Player) => {
+    dispatch({ type: 'draw', firstPlayer });
+  }, []);
 
   const handleEnemyCellClick = (row: number, col: number) => {
-    if (!canShoot) {
-      return;
-    }
-    const shot = resolveShot(enemyBoard, { row, col }, 'player');
-    if (shot) {
-      setEnemyBoard(shot.board);
-      setCurrentPlayer(shot.nextPlayer);
-      setMessage(shot.nextPlayer === null ? 'playerWins' : shot.hit ? 'hit' : 'miss');
-    }
+    dispatch({ type: 'shoot', shooter: 'player', target: { row, col } });
   };
-
   const handleSelectHit = () => {
     setJournalResult('hit');
   };
-
   const handleSelectMiss = () => {
     setJournalResult('miss');
   };
-
-  const rememberJournalState = () => {
-    setBeforeLastEntry({ playerBoard, enemyBoard, message });
-  };
-
   const handleUndoEntry = () => {
-    if (!beforeLastEntry) {
-      return;
-    }
-
-    setPlayerBoard(beforeLastEntry.playerBoard);
-    setEnemyBoard(beforeLastEntry.enemyBoard);
-    setMessage(beforeLastEntry.message);
-    setBeforeLastEntry(null);
+    dispatch({ type: 'undo' });
   };
-
   const handleIncomingShot = (row: number, col: number) => {
-    const shot = resolveShot(playerBoard, { row, col }, 'bot');
-    if (shot) {
-      rememberJournalState();
-      setPlayerBoard(shot.board);
-      if (shot.nextPlayer === null) {
-        setMessage('opponentWins');
-      }
-    }
+    dispatch({ type: 'incoming', target: { row, col } });
   };
-
   const handleJournalShot = (row: number, col: number) => {
-    const board = recordShot(enemyBoard, { row, col }, journalResult === 'hit');
-    if (board === enemyBoard) {
-      return;
-    }
-
-    rememberJournalState();
-    setEnemyBoard(board);
-    if (isJournalFleetDestroyed(board)) {
-      setMessage('playerWins');
-    }
+    dispatch({ type: 'outgoing', target: { row, col }, hit: journalResult === 'hit' });
   };
-
   const opponentCellClick = isJournalActive ? handleJournalShot : canShoot ? handleEnemyCellClick : undefined;
 
   const handleFinishPlacement = (board: BoardModel) => {
-    setPlayerBoard(board);
-    setIsPrepared(true);
+    dispatch({ type: 'place', board });
   };
-
   const handleStartGame = () => {
-    if (!canStart || isStarted) {
-      return;
-    }
-
-    setCurrentPlayer(firstPlayer);
-    if (firstPlayer === 'bot') {
-      setMessage('botTurn');
-    }
-    setIsStarted(true);
+    dispatch({ type: 'start' });
   };
-
   const handleResetGame = () => {
-    setBeforeLastEntry(null);
-    setIsStarted(false);
-    setIsPrepared(false);
-    setFirstPlayer(null);
     setJournalResult('miss');
-    setCurrentPlayer(null);
-    setDrawVersion((version) => {
-      return version + 1;
-    });
-    setPlayerBoard(createEmptyBoard());
-    setEnemyBoard(props.mode === 'bot' ? createBoardWithShips() : createEmptyBoard());
-    setMessage('newGame');
+    dispatch({ type: 'reset', boards: createBoards(props.mode) });
   };
+  const showDraw = props.mode === 'bot' && (phase.kind === 'draw' || phase.kind === 'ready');
 
   return (
     <section aria-labelledby={titleId}>
       <h2 id={titleId} className="game-mode-title">{t(`modes.${props.mode}.title`)}</h2>
-      {isFinished && (
+      {phase.kind === 'finished' && (
         <GameResultDialog
-          playerWon={message === 'playerWins'}
+          playerWon={phase.winner === 'player'}
           onBack={props.onBack}
           onUndoEntry={beforeLastEntry ? handleUndoEntry : undefined}
         />
       )}
-      {isStarted && !isFinished && props.mode === 'bot' && <GameStatus message={t(`game.status.${message}`)} />}
+      {phase.kind === 'battle' && <GameStatus message={t(`game.status.${phase.message}`)} />}
       <p>{t(`modes.${props.mode}.description`)}</p>
       <div className="game-actions">
         {isJournalActive && (
@@ -207,15 +128,15 @@ export const GameSession = (props: Props) => {
           {t('modes.back')}
         </Button>
       </div>
-      {canStart && !isStarted && (
+      {phase.kind === 'ready' && (
         <div className="game-start">
           <Button onClick={handleStartGame}>{t('game.start')}</Button>
         </div>
       )}
-      {isPrepared && !isStarted && props.mode === 'bot' && (
-        <TurnDraw key={drawVersion} onComplete={handleDrawComplete} />
+      {showDraw && (
+        <TurnDraw key={game.round} onComplete={handleDrawComplete} />
       )}
-      {!isPrepared && <ShipPlacement key={drawVersion} onReady={handleFinishPlacement} />}
+      {phase.kind === 'placement' && <ShipPlacement key={game.round} onReady={handleFinishPlacement} />}
       {isJournalActive && (
         <fieldset className="journal-result">
           <legend>{t('game.journalResult')}</legend>
@@ -229,7 +150,7 @@ export const GameSession = (props: Props) => {
           </label>
         </fieldset>
       )}
-      {isPrepared && <div className="boards">
+      {phase.kind !== 'placement' && <div className="boards">
         <Board
           title={t('game.playerBoard')}
           board={playerBoard}
